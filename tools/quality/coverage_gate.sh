@@ -7,6 +7,23 @@ THRESHOLD="${COVERAGE_THRESHOLD:-0.80}"
 
 ACTUAL=$(jq -r '.total | tonumber' governance/out/coverage.json 2>/dev/null || echo 0)
 
-awk "BEGIN{exit !( $ACTUAL >= $THRESHOLD )}" || { echo "❌ Coverage $ACTUAL < $THRESHOLD"; exit 1; }
+# Calculate percentages
+ACTUAL_PERCENT=$(awk "BEGIN{printf \"%.1f\", $ACTUAL * 100}")
+THRESHOLD_PERCENT=$(awk "BEGIN{printf \"%.1f\", $THRESHOLD * 100}")
 
-echo "✅ Coverage $ACTUAL ≥ $THRESHOLD"
+# Generate detailed report
+cat > coverage_report.txt << EOF
+📊 **Coverage Report**
+- **Current Coverage:** $ACTUAL_PERCENT%
+- **Required Threshold:** $THRESHOLD_PERCENT%
+- **Status:** $([ "$ACTUAL" -ge "$THRESHOLD" ] && echo "✅ PASSED" || echo "❌ FAILED")
+
+EOF
+
+# Check threshold
+awk "BEGIN{exit !( $ACTUAL >= $THRESHOLD )}" || {
+  echo "❌ Coverage $ACTUAL_PERCENT% < $THRESHOLD_PERCENT%" >&2;
+  exit 1;
+}
+
+echo "✅ Coverage $ACTUAL_PERCENT% ≥ $THRESHOLD_PERCENT%"

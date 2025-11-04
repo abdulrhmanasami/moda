@@ -23,3 +23,134 @@ jobs:
       
       - name: Compliance
         run: tools/compliance/compliance_checker.py
+
+      - name: Generate PR Comment
+        if: github.event_name == 'pull_request'
+        run: |
+          echo "## 📊 Governance Check Results" > pr_comment.md
+          echo "" >> pr_comment.md
+          echo "### Coverage Status" >> pr_comment.md
+          if [ -f coverage_report.txt ]; then
+            cat coverage_report.txt >> pr_comment.md
+          else
+            echo "Coverage report not found" >> pr_comment.md
+          fi
+          echo "" >> pr_comment.md
+          echo "### Compliance Status" >> pr_comment.md
+          if [ -f compliance_report.txt ]; then
+            cat compliance_report.txt >> pr_comment.md
+          else
+            echo "Compliance report not found" >> pr_comment.md
+          fi
+
+      - name: Comment on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const comment = fs.readFileSync('pr_comment.md', 'utf8');
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+
+      - name: Discord Notification
+        if: always()
+        run: |
+          # Prepare notification message
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            TITLE="🔍 PR Check: ${{ github.event.pull_request.title }}"
+            URL="${{ github.event.pull_request.html_url }}"
+          else
+            TITLE="🔄 Push Check on main"
+            URL="${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}"
+          fi
+
+          STATUS="✅ PASSED"
+          if [ "${{ job.status }}" = "failure" ]; then
+            STATUS="❌ FAILED"
+          fi
+
+          MESSAGE="**$TITLE**
+          Status: $STATUS
+          Branch: \`${{ github.ref_name }}\`
+          Commit: [\`${{ github.sha }}\`](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }})
+          [View Details]($URL)"
+
+          # Send to Discord (if webhook URL is configured)
+          if [ -n "${{ secrets.DISCORD_WEBHOOK }}" ]; then
+            curl -H "Content-Type: application/json" \
+                 -d "{\"content\": \"$MESSAGE\"}" \
+                 ${{ secrets.DISCORD_WEBHOOK }}
+          fi
+
+      - name: Slack Notification
+        if: always()
+        run: |
+          # Prepare notification message for Slack
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            TITLE="🔍 PR Check: ${{ github.event.pull_request.title }}"
+            URL="${{ github.event.pull_request.html_url }}"
+          else
+            TITLE="🔄 Push Check on main"
+            URL="${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}"
+          fi
+
+          STATUS="✅ PASSED"
+          if [ "${{ job.status }}" = "failure" ]; then
+            STATUS="❌ FAILED"
+          fi
+
+          PAYLOAD="{
+            \"text\": \"$TITLE\",
+            \"blocks\": [
+              {
+                \"type\": \"section\",
+                \"text\": {
+                  \"type\": \"mrkdwn\",
+                  \"text\": \"$TITLE\"
+                }
+              },
+              {
+                \"type\": \"section\",
+                \"fields\": [
+                  {
+                    \"type\": \"mrkdwn\",
+                    \"text\": \"*Status:* $STATUS\"
+                  },
+                  {
+                    \"type\": \"mrkdwn\",
+                    \"text\": \"*Branch:* \`${{ github.ref_name }}\`\"
+                  },
+                  {
+                    \"type\": \"mrkdwn\",
+                    \"text\": \"*Commit:* <${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|\`${{ github.sha }}\`>\"
+                  }
+                ]
+              },
+              {
+                \"type\": \"actions\",
+                \"elements\": [
+                  {
+                    \"type\": \"button\",
+                    \"text\": {
+                      \"type\": \"plain_text\",
+                      \"text\": \"View Details\"
+                    },
+                    \"url\": \"$URL\"
+                  }
+                ]
+              }
+            ]
+          }"
+
+          # Send to Slack (if webhook URL is configured)
+          if [ -n "${{ secrets.SLACK_WEBHOOK }}" ]; then
+            curl -X POST -H 'Content-type: application/json' \
+                 --data "$PAYLOAD" \
+                 ${{ secrets.SLACK_WEBHOOK }}
+          fi
