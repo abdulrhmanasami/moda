@@ -1,0 +1,96 @@
+# @Study:ST-013
+# @Study:ST-007
+# @Study:ST-005
+# @Study:ST-002
+patterns:
+  # Backend code - Technical architecture and AI strategy
+  - glob: "src/backend/**"
+    studies: ["ST-008", "ST-012", "ST-009", "ST-010"]
+  
+  # Frontend code - Technical stack
+  - glob: "src/frontend/**"
+    studies: ["ST-008", "ST-012"]
+  
+  # Shared libraries - Architecture
+  - glob: "src/shared/**"
+    studies: ["ST-008", "ST-012"]
+  
+  # Tests - MVP implementation
+  - glob: "tests/**"
+    studies: ["ST-016", "ST-017", "ST-018"]
+  
+  # Infrastructure - Technical infrastructure and roadmap
+  - glob: "infrastructure/**"
+    studies: ["ST-012", "ST-013", "ST-014"]
+  
+  # Governance scripts - Compliance and governance
+  - glob: "tools/governance/**"
+    studies: ["ST-019"]
+  
+  # Compliance tools - Validation and compliance
+  - glob: "tools/compliance/**"
+    studies: ["ST-019"]
+  
+  # Quality tools - Technical specifications
+  - glob: "tools/quality/**"
+    studies: ["ST-004", "ST-008"]
+  
+  # Hygiene tools - Governance framework
+  - glob: "tools/hygiene/**"
+    studies: ["ST-019"]
+  
+  # Documentation - Technical specifications
+  - glob: "docs/**"
+    studies: ["ST-004", "ST-008"]
+  
+  # Scripts - Various studies based on purpose
+  - glob: "scripts/compliance_checker.py"
+    studies: ["ST-019"]
+  - glob: "scripts/governance_monitor.py"
+    studies: ["ST-019"]
+  - glob: "scripts/governance_reporter.py"
+    studies: ["ST-019"]
+  - glob: "scripts/governance/**"
+    studies: ["ST-019"]
+  
+  # Root level configuration - Architecture and deployment
+  - glob: "pyproject.toml"
+    studies: ["ST-008", "ST-012"]
+  - glob: "package.json"
+    studies: ["ST-008", "ST-012"]
+  - glob: "docker-compose.yml"
+    studies: ["ST-012"]
+  - glob: "Dockerfile"
+    studies: ["ST-012"]
+  
+  # Studies themselves - Compliance and validation
+  - glob: "studies/**"
+    studies: ["ST-019"]
+
+  - glob: "docs/roadmap/**"
+    studies: ["ST-002"]
+  - glob: "product/roadmap/**"
+    studies: ["ST-002"]
+
+  - glob: "docs/market/**"
+    studies: ["ST-005"]
+  - glob: "strategy/**"
+    studies: ["ST-005"]
+
+  - glob: "specs/module4/**"
+    studies: ["ST-006"]
+
+  - glob: "ops/**"
+    studies: ["ST-007"]
+  - glob: "finance/**"
+    studies: ["ST-007"]
+
+  - glob: "ml/**"
+    studies: ["ST-011"]
+  - glob: "ai/**"
+    studies: ["ST-011"]
+
+  - glob: "process/methodology/**"
+    studies: ["ST-013","ST-014","ST-015"]
+  - glob: "docs/methodology/**"
+    studies: ["ST-013","ST-014","ST-015"]

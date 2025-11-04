@@ -1,0 +1,305 @@
+{
+  "version": "2025-11-05",
+  "studies": [
+    {
+      "id": "ST-001",
+      "title": "التحليل المالي والتجاري الشامل",
+      "rev": "v1.0",
+      "sha256": "0f9167a9c8978652a349e0c5c4369851c34a5b7e9ea5b8f4da3c2a2d0f2d6a0e",
+      "enforced": true,
+      "owners": [
+        "@ceo",
+        "@cto",
+        "@cpo"
+      ],
+      "areas": [
+        "architecture",
+        "operations",
+        "finance"
+      ]
+    },
+    {
+      "id": "ST-002",
+      "title": "خارطة طريق التطوير والتنفيذ",
+      "rev": "v1.0",
+      "sha256": "2683c54e1f6aa118fd5eb06eb8ade9175d30b89f5199d4741fa34ff26d4f50f7",
+      "enforced": true,
+      "owners": [
+        "@ceo",
+        "@cto",
+        "@cpo"
+      ],
+      "areas": [
+        "architecture",
+        "operations",
+        "finance"
+      ]
+    },
+    {
+      "id": "ST-003",
+      "title": "MODAMODA INVISIBLE MANNEQUIN - الدراسة الشاملة الرئيسية",
+      "rev": "v1.0",
+      "sha256": "258f8e53affadd2f587f43c5789268222b452d305977fa935b98a4837fb82820",
+      "enforced": true,
+      "owners": [
+        "@ceo",
+        "@cto",
+        "@cpo"
+      ],
+      "areas": [
+        "architecture",
+        "operations",
+        "finance"
+      ]
+    },
+    {
+      "id": "ST-004",
+      "title": "المواصفات التقنية الشاملة",
+      "rev": "v1.0",
+      "sha256": "c28eb98c3d047a98ad3b9c50936fb705503223ac3c16e565f6b2ff96f945baa5",
+      "enforced": true,
+      "owners": [
+        "@ceo",
+        "@cto",
+        "@cpo"
+      ],
+      "areas": [
+        "architecture",
+        "operations",
+        "finance"
+      ]
+    },
+    {
+      "id": "ST-005",
+      "title": "تحليل السوق والاستراتيجية التنافسية لمشروع \"الموديل الخفي\"",
+      "rev": "v1.0",
+      "sha256": "ccef6fa1e1de39eaf6d117c126f94775ebb05951c01f80ba4a92cf863449269c",
+      "enforced": true,
+      "owners": [
+        "@cfo",
+        "@ceo"
+      ],
+      "areas": [
+        "finance",
+        "operations"
+      ]
+    },
+    {
+      "id": "ST-006",
+      "title": "دراسة احترافية للمحور الرابع: تحليل السوق والمصادر المفتوحة والاستراتيجية التنافسية",
+      "rev": "v1.0",
+      "sha256": "00d69f6c1fe609724bed559c3b52a03564413f803f43d2708e89f6e93215157a",
+      "enforced": true,
+      "owners": [
+        "@cfo",
+        "@ceo"
+      ],
+      "areas": [
+        "finance",
+        "operations"
+      ]
+    },
+    {
+      "id": "ST-007",
+      "title": "المخطط التشغيلي والمالي لمشروع \"الموديل الخفي\"",
+      "rev": "v1.0",
+      "sha256": "ae5c51ff646f97cbe29551827247e899f1fcdca015a1ec1b957f007849c28fde",
+      "enforced": true,
+      "owners": [
+        "@cfo",
+        "@ceo"
+      ],
+      "areas": [
+        "finance",
+        "operations"
+      ]
+    },
+    {
+      "id": "ST-008",
+      "title": "الهيكلية والمكدس التقني لمشروع \"الموديل الخفي\"",
+      "rev": "v1.0",
+      "sha256": "29090d3626a7454c492d35f4432d3d4aa3ca361d440846f05473ef0c1cf0ed31",
+      "enforced": true,
+      "owners": [
+        "@cto",
+        "@technology-committee"
+      ],
+      "areas": [
+        "architecture",
+        "ai-ethics",
+        "security"
+      ]
+    },
+    {
+      "id": "ST-009",
+      "title": "استراتيجية نموذج الذكاء الاصطناعي الأساسي لمشروع \"الموديل الخفي\"",
+      "rev": "v1.0",
+      "sha256": "263de86d088519dff3913ed73855500822636b7e289ea7afe950bb7efcae9bd6",
+      "enforced": true,
+      "owners": [
+        "@cto",
+        "@technology-committee"
+      ],
+      "areas": [
+        "architecture",
+        "ai-ethics",
+        "security"
+      ]
+    },
+    {
+      "id": "ST-010",
+      "title": "دراسة احترافية للمحور الخامس: استراتيجية نموذج الذكاء الاصطناعي الأساسي",
+      "rev": "v1.0",
+      "sha256": "6581bf762efc9cdae6f24f88148b965a4dc6865badda7692052c76dccf464726",
+      "enforced": true,
+      "owners": [
+        "@cto",
+        "@technology-committee"
+      ],
+      "areas": [
+        "architecture",
+        "ai-ethics",
+        "security"
+      ]
+    },
+    {
+      "id": "ST-011",
+      "title": "استراتيجية نموذج الذكاء الاصطناعي الأساسي لمشروع \"الموديل الخفي\"",
+      "rev": "v1.0",
+      "sha256": "022ac8247a5325716fc5c2125024ce916ae06180e7fac507704b79b85eb6c209",
+      "enforced": true,
+      "owners": [
+        "@cto",
+        "@technology-committee"
+      ],
+      "areas": [
+        "architecture",
+        "ai-ethics",
+        "security"
+      ]
+    },
+    {
+      "id": "ST-012",
+      "title": "الهيكلية والمكدس التقني لمشروع \"الموديل الخفي\"",
+      "rev": "v1.0",
+      "sha256": "ac681f39c4df776760463b672ff32d13bccb0c12df0bd3791d5dace9cacd9c77",
+      "enforced": true,
+      "owners": [
+        "@cto",
+        "@technology-committee"
+      ],
+      "areas": [
+        "architecture",
+        "ai-ethics",
+        "security"
+      ]
+    },
+    {
+      "id": "ST-013",
+      "title": "خارطة الطريق المنهجية لمشروع \"الموديل الخفي\"",
+      "rev": "v1.0",
+      "sha256": "2a352df33f973430cb6ca8fe2c50a5e5c846cf385f368eaa5d1f50e0a53f7a84",
+      "enforced": true,
+      "owners": [
+        "@cpo",
+        "@technology-committee"
+      ],
+      "areas": [
+        "operations",
+        "testing"
+      ]
+    },
+    {
+      "id": "ST-014",
+      "title": "خطة التطوير المنهجية لمشروع الموديل الخفي",
+      "rev": "v1.0",
+      "sha256": "d2406e19a063faf7bc63831fdb1018069f01d1970e301d8e8e67631985fb7127",
+      "enforced": true,
+      "owners": [
+        "@cpo",
+        "@technology-committee"
+      ],
+      "areas": [
+        "operations",
+        "testing"
+      ]
+    },
+    {
+      "id": "ST-015",
+      "title": "خارطة الطريق المنهجية لمشروع \"الموديل الخفي\"",
+      "rev": "v1.0",
+      "sha256": "7c8ad031d98c3430a62f5558615d303c40b25b7d3d879919e50f390748746ce2",
+      "enforced": true,
+      "owners": [
+        "@cpo",
+        "@technology-committee"
+      ],
+      "areas": [
+        "operations",
+        "testing"
+      ]
+    },
+    {
+      "id": "ST-016",
+      "title": "دراسة احترافية للمرحلة الأولى: منتج الحد الأدنى القابل للتطبيق (MVP)",
+      "rev": "v1.0",
+      "sha256": "3fd437bfbc134de76d186aef4e579bee4db9ae92cb40fabfcbcc8ce1afe5441c",
+      "enforced": true,
+      "owners": [
+        "@cpo",
+        "@technology-committee"
+      ],
+      "areas": [
+        "operations",
+        "testing"
+      ]
+    },
+    {
+      "id": "ST-017",
+      "title": "دراسة احترافية للمرحلة الثانية: الإصدار الأول (V1.0)",
+      "rev": "v1.0",
+      "sha256": "68e0f3f11da489c346f4819754b4619586914ecdf07b79addefd1628558e376b",
+      "enforced": true,
+      "owners": [
+        "@cpo",
+        "@technology-committee"
+      ],
+      "areas": [
+        "operations",
+        "testing"
+      ]
+    },
+    {
+      "id": "ST-018",
+      "title": "دراسة احترافية للمرحلة الثالثة: الإصدار (V1.1) - نموذج العمل المؤسسي (B2B) وتفعيل BYOK",
+      "rev": "v1.0",
+      "sha256": "98e087a1e6a23eaea48f0549d165353b588a85429dc02ba32866fad3942d7a05",
+      "enforced": true,
+      "owners": [
+        "@cpo",
+        "@technology-committee"
+      ],
+      "areas": [
+        "operations",
+        "testing"
+      ]
+    },
+    {
+      "id": "ST-019",
+      "title": "دراسة احترافية للمحور السابع: وثيقة إجراءات التحقق والامتثال (Validation & Compliance SOP)",
+      "rev": "v1.0",
+      "sha256": "bf5e3e2a0dd31f1c02c40a03fdf4dae7066045f28816cb1ec52ee7a5b0b0b66d",
+      "enforced": true,
+      "owners": [
+        "@legal",
+        "@security",
+        "@quality-committee"
+      ],
+      "areas": [
+        "security",
+        "ai-ethics",
+        "compliance"
+      ]
+    }
+  ]
+}

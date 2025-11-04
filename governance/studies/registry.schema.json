@@ -1,0 +1,53 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "version": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+    },
+    "studies": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^ST-\\d{3}$"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1
+          },
+          "rev": {
+            "type": "string",
+            "pattern": "^v\\d+\\.\\d+$"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "enforced": {
+            "type": "boolean"
+          },
+          "owners": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^@\\w+$"
+            }
+          },
+          "areas": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["data", "security", "ai-ethics", "architecture", "testing", "compliance", "finance", "operations"]
+            }
+          }
+        },
+        "required": ["id", "title", "rev", "enforced", "owners", "areas"]
+      }
+    }
+  },
+  "required": ["version", "studies"]
+}

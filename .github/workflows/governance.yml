@@ -1,0 +1,25 @@
+name: Governance
+
+on:
+  pull_request:
+  push:
+    branches: [ main ]
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Hygiene
+        run: tools/hygiene/repo_hygiene.sh
+      
+      - name: Governance Monitor
+        run: tools/governance/governance_monitor.py
+      
+      - name: Coverage Gate
+        env: { COVERAGE_THRESHOLD: "0.80" }
+        run: tools/quality/coverage_gate.sh
+      
+      - name: Compliance
+        run: tools/compliance/compliance_checker.py

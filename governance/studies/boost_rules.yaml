@@ -1,0 +1,25 @@
+# @Study:ST-015
+# @Study:ST-014
+# @Study:ST-013
+# @Study:ST-011
+# @Study:ST-007
+# @Study:ST-006
+# @Study:ST-005
+# @Study:ST-002
+rules:
+  ST-002:
+    keywords: ["roadmap","milestone","timeline","delivery plan"]
+  ST-005:
+    keywords: ["market","competitor","segment","pricing","positioning"]
+  ST-006:
+    keywords: ["module 4","phase 4","pillar 4","component 4"]
+  ST-007:
+    keywords: ["ops","operation","runbook","budget","cashflow","p&l","invoice"]
+  ST-011:
+    keywords: ["model","inference","fine-tune","checkpoint","pipeline"]
+  ST-013:
+    keywords: ["methodology","process","rfc","sop","workflow"]
+  ST-014:
+    keywords: ["implementation plan","dev plan","spi","iteration"]
+  ST-015:
+    keywords: ["roadmap v2","release plan","rollout","migration plan"]

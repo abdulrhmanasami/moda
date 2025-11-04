@@ -1,0 +1,86 @@
+# @Study:ST-008 @Study:ST-012
+[tool.poetry]
+name = "modamoda-invisible-mannequin"
+version = "0.1.0"
+description = "AI-powered fashion virtual try-on platform"
+authors = ["Modamoda Team <team@modamoda.com>"]
+readme = "README.md"
+packages = [{include = "src"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = "^0.104.1"
+uvicorn = {extras = ["standard"], version = "^0.24.0"}
+celery = {extras = ["redis"], version = "^5.3.4"}
+redis = "^5.0.1"
+sqlalchemy = "^2.0.23"
+alembic = "^1.13.1"
+pydantic = {extras = ["email"], version = "^2.5.0"}
+python-multipart = "^0.0.6"
+httpx = "^0.25.2"
+
+# AI/ML dependencies (from technical specifications)
+torch = "^2.1.0"
+torchvision = "^0.16.0"
+diffusers = "^0.24.0"
+transformers = "^4.35.0"
+accelerate = "^0.24.0"
+opencv-python = "^4.8.1"
+pillow = "^10.1.0"
+
+# Security & Compliance
+cryptography = "^41.0.7"
+bcrypt = "^4.0.1"
+python-jose = {extras = ["cryptography"], version = "^3.3.0"}
+passlib = {extras = ["bcrypt"], version = "^1.7.4"}
+
+# Cloud & Infrastructure
+boto3 = "^1.34.34"
+google-cloud-storage = "^2.10.0"
+azure-storage-blob = "^12.19.0"
+
+# Monitoring & Logging
+sentry-sdk = {extras = ["fastapi"], version = "^1.38.0"}
+structlog = "^23.2.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.4.3"
+pytest-cov = "^4.1.0"
+pytest-asyncio = "^0.21.1"
+black = "^23.11.0"
+isort = "^5.12.0"
+flake8 = "^6.1.0"
+mypy = "^1.7.1"
+pre-commit = "^3.5.0"
+bandit = "^1.7.6"
+safety = "^2.3.5"
+
+[tool.poetry.group.docs.dependencies]
+mkdocs = "^1.5.3"
+mkdocs-material = "^9.4.8"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "--cov=src --cov-report=html --cov-report=term-missing"

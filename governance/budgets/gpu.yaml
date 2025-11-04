@@ -1,0 +1,4 @@
+cap_per_image_eur: 0.012
+alert_thresholds:
+  warn: 0.010
+  hard: 0.0125
