@@ -18,7 +18,7 @@ jobs:
         run: python3 tools/governance/governance_monitor
       
       - name: Coverage Gate
-        env: { COVERAGE_THRESHOLD: "0.80" }
+        env: { COVERAGE_THRESHOLD: "0.95" }
         run: tools/quality/coverage_gate.sh
       
       - name: Compliance
