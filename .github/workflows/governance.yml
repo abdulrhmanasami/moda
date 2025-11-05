@@ -2,15 +2,35 @@ name: Governance
 
 on:
   pull_request:
+    branches: [ main, '**' ]
   push:
     branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   checks:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
+      - name: Install helm
+        run: |
+          curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+      - name: Install kubeconform
+        run: |
+          curl -L https://github.com/yannh/kubeconform/releases/download/v0.6.6/kubeconform-linux-amd64.tar.gz \
+          | tar xz && sudo mv kubeconform /usr/local/bin/
+      - name: Install kube-linter
+        run: |
+          curl -L https://github.com/stackrox/kube-linter/releases/download/v0.6.6/kube-linter-linux.tar.gz \
+          | tar xz && sudo mv kube-linter /usr/local/bin/
+      - name: Install promtool
+        run: |
+          curl -L https://github.com/prometheus/prometheus/releases/download/v2.53.1/prometheus-2.53.1.linux-amd64.tar.gz \
+          | tar xz && sudo mv prometheus-2.53.1.linux-amd64/promtool /usr/local/bin/
+      - name: Make scripts executable
+        run: chmod +x tools/observability/*.sh || true
+
       - name: Hygiene
         run: tools/hygiene/repo_hygiene.sh
       
