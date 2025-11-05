@@ -26,7 +26,7 @@ tools/hygiene/repo_hygiene.sh && pass "Hygiene PASS" | tee -a "$REPORT"
 # ==== Governance (Monitor + Coverage Gate) ====
 
 echo -e "\n## Governance" >> "$REPORT"
-python3 scripts/governance_monitor.py || true
+python3 tools/governance_toolkit/governance_monitor.py || true
 ACTUAL=$(jq -r '.total' governance/out/coverage.json 2>/dev/null || echo "0")
 echo "- Study coverage: ${ACTUAL}" >> "$REPORT"
 COVERAGE_THRESHOLD="$COVERAGE_THRESHOLD" tools/quality/coverage_gate.sh && pass "Coverage ≥ ${COVERAGE_THRESHOLD}" | tee -a "$REPORT"
@@ -34,7 +34,7 @@ COVERAGE_THRESHOLD="$COVERAGE_THRESHOLD" tools/quality/coverage_gate.sh && pass 
 # ==== Compliance ====
 
 echo -e "\n## Compliance" >> "$REPORT"
-tools/compliance/compliance_checker && pass "Compliance PASS" | tee -a "$REPORT"
+tools/compliance/compliance_checker.py && pass "Compliance PASS" | tee -a "$REPORT"
 
 # ==== Security OPS (Python) ====
 

@@ -68,10 +68,10 @@ def generate_matrix():
 ### Commands
 ```bash
 # Check current coverage
-python3 tools/governance/governance_monitor.py
+python3 tools/governance_toolkit/governance_monitor.py
 
 # Generate reports
-python3 tools/governance/governance_reporter.py
+python3 tools/governance_toolkit/governance_reporter.py
 
 # Run compliance check
 python3 tools/compliance/compliance_checker.py
