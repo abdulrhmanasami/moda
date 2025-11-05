@@ -1,11 +1,9 @@
 import concurrent.futures, threading
 
 
-
 counter = 0
 
 lock = threading.Lock()
-
 
 
 def step():
@@ -21,7 +19,6 @@ def step():
         counter = v
 
     return True
-
 
 
 def test_thread_safety_basic():

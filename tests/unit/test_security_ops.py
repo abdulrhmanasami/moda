@@ -11,6 +11,7 @@ from pathlib import Path
 from unittest.mock import patch, MagicMock
 from scripts.devops.security.security_ops import SecurityOps
 
+
 class TestSecurityOps:
     """اختبارات فئة SecurityOps"""
 
@@ -29,7 +30,7 @@ class TestSecurityOps:
         """تنظيف البيئة بعد كل اختبار"""
         shutil.rmtree(self.temp_dir)
 
-    @patch('scripts.devops.security.security_ops.Path')
+    @patch("scripts.devops.security.security_ops.Path")
     def test_security_audit_basic_structure(self, mock_path):
         """اختبار هيكل التقرير الأمني الأساسي"""
         mock_path.return_value.parent.parent.parent.parent = self.project_root
@@ -37,15 +38,21 @@ class TestSecurityOps:
         ops = SecurityOps()
         result = ops.security_audit()
 
-        required_keys = ["timestamp", "vulnerabilities", "compliance_issues", "recommendations", "score"]
+        required_keys = [
+            "timestamp",
+            "vulnerabilities",
+            "compliance_issues",
+            "recommendations",
+            "score",
+        ]
         for key in required_keys:
             assert key in result
 
         assert isinstance(result["score"], int)
         assert 0 <= result["score"] <= 100
 
-    @patch('scripts.devops.security.security_ops.subprocess.run')
-    @patch('scripts.devops.security.security_ops.Path')
+    @patch("scripts.devops.security.security_ops.subprocess.run")
+    @patch("scripts.devops.security.security_ops.Path")
     def test_check_dependencies_with_vulnerabilities(self, mock_path, mock_subprocess):
         """اختبار فحص التبعيات مع وجود ثغرات"""
         mock_path.return_value.parent.parent.parent.parent = self.project_root
@@ -53,16 +60,18 @@ class TestSecurityOps:
         # محاكاة إخراج safety
         mock_result = MagicMock()
         mock_result.returncode = 0
-        mock_result.stdout = json.dumps({
-            "vulnerabilities": [
-                {
-                    "package": "test-package",
-                    "version": "1.0.0",
-                    "severity": "high",
-                    "description": "Test vulnerability"
-                }
-            ]
-        })
+        mock_result.stdout = json.dumps(
+            {
+                "vulnerabilities": [
+                    {
+                        "package": "test-package",
+                        "version": "1.0.0",
+                        "severity": "high",
+                        "description": "Test vulnerability",
+                    }
+                ]
+            }
+        )
         mock_subprocess.return_value = mock_result
 
         ops = SecurityOps()
@@ -72,7 +81,7 @@ class TestSecurityOps:
         assert vulnerabilities[0]["severity"] == "high"
         assert vulnerabilities[0]["package"] == "test-package"
 
-    @patch('scripts.devops.security.security_ops.Path')
+    @patch("scripts.devops.security.security_ops.Path")
     def test_check_compliance_with_insecure_env(self, mock_path):
         """اختبار فحص الامتثال مع ملف بيئة غير آمن"""
         mock_path.return_value.parent.parent.parent.parent = self.project_root
@@ -87,7 +96,7 @@ class TestSecurityOps:
         assert len(issues) > 0
         assert any("dangerous" in issue["description"].lower() for issue in issues)
 
-    @patch('scripts.devops.security.security_ops.Path')
+    @patch("scripts.devops.security.security_ops.Path")
     def test_check_compliance_with_secure_file_permissions(self, mock_path):
         """اختبار فحص صلاحيات الملفات الآمنة"""
         mock_path.return_value.parent.parent.parent.parent = self.project_root
@@ -104,8 +113,8 @@ class TestSecurityOps:
         assert len(issues) > 0
         assert any("permissions" in issue["description"].lower() for issue in issues)
 
-    @patch('scripts.devops.security.security_ops.subprocess.run')
-    @patch('scripts.devops.security.security_ops.Path')
+    @patch("scripts.devops.security.security_ops.subprocess.run")
+    @patch("scripts.devops.security.security_ops.Path")
     def test_check_code_security_with_issues(self, mock_path, mock_subprocess):
         """اختبار فحص أمان الكود مع وجود مشاكل"""
         mock_path.return_value.parent.parent.parent.parent = self.project_root
@@ -113,17 +122,19 @@ class TestSecurityOps:
         # محاكاة إخراج bandit
         mock_result = MagicMock()
         mock_result.returncode = 0
-        mock_result.stdout = json.dumps({
-            "results": [
-                {
-                    "filename": "test.py",
-                    "line_number": 10,
-                    "issue_text": "Test security issue",
-                    "issue_severity": "medium",
-                    "issue_confidence": "high"
-                }
-            ]
-        })
+        mock_result.stdout = json.dumps(
+            {
+                "results": [
+                    {
+                        "filename": "test.py",
+                        "line_number": 10,
+                        "issue_text": "Test security issue",
+                        "issue_severity": "medium",
+                        "issue_confidence": "high",
+                    }
+                ]
+            }
+        )
         mock_subprocess.return_value = mock_result
 
         ops = SecurityOps()
@@ -136,10 +147,7 @@ class TestSecurityOps:
     def test_calculate_security_score_perfect(self):
         """اختبار حساب النتيجة الأمنية المثالية"""
         ops = SecurityOps()
-        audit_results = {
-            "vulnerabilities": [],
-            "compliance_issues": []
-        }
+        audit_results = {"vulnerabilities": [], "compliance_issues": []}
 
         score = ops._calculate_security_score(audit_results)
         assert score == 100
@@ -148,14 +156,8 @@ class TestSecurityOps:
         """اختبار حساب النتيجة الأمنية مع وجود مشاكل"""
         ops = SecurityOps()
         audit_results = {
-            "vulnerabilities": [
-                {"severity": "high"},
-                {"severity": "medium"}
-            ],
-            "compliance_issues": [
-                {"severity": "high"},
-                {"severity": "low"}
-            ]
+            "vulnerabilities": [{"severity": "high"}, {"severity": "medium"}],
+            "compliance_issues": [{"severity": "high"}, {"severity": "low"}],
         }
 
         score = ops._calculate_security_score(audit_results)
@@ -170,14 +172,14 @@ class TestSecurityOps:
         low_score_audit = {
             "score": 60,
             "vulnerabilities": [{"type": "dependency"}],
-            "compliance_issues": [{"description": "permissions on sensitive files"}]
+            "compliance_issues": [{"description": "permissions on sensitive files"}],
         }
 
         recommendations = ops._generate_recommendations(low_score_audit)
         assert len(recommendations) > 0
         assert any("critical" in rec.lower() for rec in recommendations)
 
-    @patch('scripts.devops.security.security_ops.Path')
+    @patch("scripts.devops.security.security_ops.Path")
     def test_generate_security_report_creates_file(self, mock_path):
         """اختبار إنشاء ملف التقرير الأمني"""
         mock_path.return_value.parent.parent.parent.parent = self.project_root
@@ -188,14 +190,20 @@ class TestSecurityOps:
         assert Path(report_path).exists()
 
         # التحقق من محتوى التقرير
-        with open(report_path, 'r', encoding='utf-8') as f:
+        with open(report_path, "r", encoding="utf-8") as f:
             data = json.load(f)
 
-        required_keys = ["timestamp", "vulnerabilities", "compliance_issues", "recommendations", "score"]
+        required_keys = [
+            "timestamp",
+            "vulnerabilities",
+            "compliance_issues",
+            "recommendations",
+            "score",
+        ]
         for key in required_keys:
             assert key in data
 
-    @patch('scripts.devops.security.security_ops.Path')
+    @patch("scripts.devops.security.security_ops.Path")
     def test_monitor_security_status_no_reports(self, mock_path):
         """اختبار مراقبة الحالة الأمنية بدون تقارير سابقة"""
         mock_path.return_value.parent.parent.parent.parent = self.project_root
@@ -207,10 +215,11 @@ class TestSecurityOps:
         assert status["current_score"] == 0
         assert status["status"] == "unknown"
 
+
 class TestSecurityOpsIntegration:
     """اختبارات التكامل لنظام العمليات الأمنية"""
 
-    @patch('scripts.devops.security.security_ops.Path')
+    @patch("scripts.devops.security.security_ops.Path")
     def test_full_security_workflow(self, mock_path):
         """اختبار سير العمل الأمني الكامل"""
         temp_dir = Path(tempfile.mkdtemp())
@@ -236,8 +245,8 @@ class TestSecurityOpsIntegration:
         finally:
             shutil.rmtree(temp_dir)
 
-    @patch('scripts.devops.security.security_ops.subprocess.run')
-    @patch('scripts.devops.security.security_ops.Path')
+    @patch("scripts.devops.security.security_ops.subprocess.run")
+    @patch("scripts.devops.security.security_ops.Path")
     def test_dependency_check_integration(self, mock_path, mock_subprocess):
         """اختبار تكامل فحص التبعيات"""
         mock_path.return_value.parent.parent.parent.parent = self.project_root

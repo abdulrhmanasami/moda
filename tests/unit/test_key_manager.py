@@ -10,6 +10,7 @@ from pathlib import Path
 from unittest.mock import patch, mock_open
 from scripts.devops.keys.key_manager import KeyManager
 
+
 class TestKeyManager:
     """اختبارات فئة KeyManager"""
 
@@ -25,7 +26,7 @@ class TestKeyManager:
 
     def test_initialization_creates_master_key(self):
         """اختبار إنشاء المفتاح الرئيسي عند التهيئة"""
-        with patch('scripts.devops.keys.key_manager.Path') as mock_path:
+        with patch("scripts.devops.keys.key_manager.Path") as mock_path:
             mock_path.return_value.parent.parent.parent.parent = self.temp_dir
 
             km = KeyManager()
@@ -36,7 +37,7 @@ class TestKeyManager:
 
     def test_generate_secure_key_length(self):
         """اختبار طول المفتاح المنشأ"""
-        with patch('scripts.devops.keys.key_manager.Path') as mock_path:
+        with patch("scripts.devops.keys.key_manager.Path") as mock_path:
             mock_path.return_value.parent.parent.parent.parent = self.temp_dir
 
             km = KeyManager()
@@ -47,7 +48,7 @@ class TestKeyManager:
 
     def test_set_and_get_secret(self):
         """اختبار حفظ واسترجاع السر"""
-        with patch('scripts.devops.keys.key_manager.Path') as mock_path:
+        with patch("scripts.devops.keys.key_manager.Path") as mock_path:
             mock_path.return_value.parent.parent.parent.parent = self.temp_dir
 
             km = KeyManager()
@@ -62,7 +63,7 @@ class TestKeyManager:
 
     def test_get_nonexistent_secret(self):
         """اختبار استرجاع سر غير موجود"""
-        with patch('scripts.devops.keys.key_manager.Path') as mock_path:
+        with patch("scripts.devops.keys.key_manager.Path") as mock_path:
             mock_path.return_value.parent.parent.parent.parent = self.temp_dir
 
             km = KeyManager()
@@ -72,7 +73,7 @@ class TestKeyManager:
 
     def test_rotate_master_key(self):
         """اختبار تدوير المفتاح الرئيسي"""
-        with patch('scripts.devops.keys.key_manager.Path') as mock_path:
+        with patch("scripts.devops.keys.key_manager.Path") as mock_path:
             mock_path.return_value.parent.parent.parent.parent = self.temp_dir
 
             km = KeyManager()
@@ -90,18 +91,20 @@ class TestKeyManager:
 
     def test_validate_secure_environment(self):
         """اختبار التحقق من ملف البيئة الآمن"""
-        with patch('scripts.devops.keys.key_manager.Path') as mock_path:
+        with patch("scripts.devops.keys.key_manager.Path") as mock_path:
             mock_path.return_value.parent.parent.parent.parent = self.temp_dir
 
             km = KeyManager()
 
             # إنشاء ملف بيئة آمن
             env_file = self.temp_dir / ".env"
-            env_file.write_text("""\
+            env_file.write_text(
+                """\
 SECRET_KEY=secure_random_key_12345
 DATABASE_URL=postgresql://user:pass@localhost/db
 JWT_SECRET_KEY=another_secure_key_67890
-""")
+"""
+            )
 
             result = km.validate_environment(env_file)
             assert result["valid"] is True
@@ -109,17 +112,19 @@ JWT_SECRET_KEY=another_secure_key_67890
 
     def test_validate_insecure_environment(self):
         """اختبار التحقق من ملف البيئة غير الآمن"""
-        with patch('scripts.devops.keys.key_manager.Path') as mock_path:
+        with patch("scripts.devops.keys.key_manager.Path") as mock_path:
             mock_path.return_value.parent.parent.parent.parent = self.temp_dir
 
             km = KeyManager()
 
             # إنشاء ملف بيئة غير آمن
             env_file = self.temp_dir / ".env"
-            env_file.write_text("""\
+            env_file.write_text(
+                """\
 SECRET_KEY=your-super-secret-key-change-in-production
 DATABASE_URL=postgresql://user:pass@localhost/db
-""")
+"""
+            )
 
             result = km.validate_environment(env_file)
             assert result["valid"] is False
@@ -128,7 +133,7 @@ DATABASE_URL=postgresql://user:pass@localhost/db
 
     def test_list_secrets_masks_values(self):
         """اختبار سرد الأسرار مع إخفاء القيم"""
-        with patch('scripts.devops.keys.key_manager.Path') as mock_path:
+        with patch("scripts.devops.keys.key_manager.Path") as mock_path:
             mock_path.return_value.parent.parent.parent.parent = self.temp_dir
 
             km = KeyManager()
@@ -141,6 +146,7 @@ DATABASE_URL=postgresql://user:pass@localhost/db
             assert len(secrets) == 2
             assert all(value == "***" for value in secrets.values())
 
+
 class TestKeyManagerIntegration:
     """اختبارات التكامل لمدير المفاتيح"""
 
@@ -149,7 +155,7 @@ class TestKeyManagerIntegration:
         temp_dir = Path(tempfile.mkdtemp())
 
         try:
-            with patch('scripts.devops.keys.key_manager.Path') as mock_path:
+            with patch("scripts.devops.keys.key_manager.Path") as mock_path:
                 mock_path.return_value.parent.parent.parent.parent = temp_dir
 
                 # إنشاء نسخة أولى وحفظ سر
@@ -170,7 +176,7 @@ class TestKeyManagerIntegration:
         temp_dir = Path(tempfile.mkdtemp())
 
         try:
-            with patch('scripts.devops.keys.key_manager.Path') as mock_path:
+            with patch("scripts.devops.keys.key_manager.Path") as mock_path:
                 mock_path.return_value.parent.parent.parent.parent = temp_dir
 
                 km = KeyManager()
@@ -182,7 +188,7 @@ class TestKeyManagerIntegration:
                 store_file = temp_dir / "keys" / ".secure_store.enc"
                 assert store_file.exists()
 
-                with open(store_file, 'rb') as f:
+                with open(store_file, "rb") as f:
                     encrypted_data = f.read()
 
                 # التأكد من أن البيانات مشفرة (ليست نصاً عادياً)

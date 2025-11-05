@@ -17,6 +17,7 @@ from typing import Dict, List, Any, Optional
 import matplotlib.pyplot as plt
 import pandas as pd
 
+
 class GovernanceReporter:
     """
     نظام الإبلاغ التلقائي الشامل للحوكمة
@@ -31,21 +32,29 @@ class GovernanceReporter:
 
         # إعدادات التقارير
         self.report_config = {
-            'daily': {
-                'frequency': 'daily',
-                'template': 'daily_report_template.json',
-                'recipients': ['governance@modamoda.com', 'cto@modamoda.com']
+            "daily": {
+                "frequency": "daily",
+                "template": "daily_report_template.json",
+                "recipients": ["governance@modamoda.com", "cto@modamoda.com"],
             },
-            'weekly': {
-                'frequency': 'weekly',
-                'template': 'weekly_report_template.json',
-                'recipients': ['board@modamoda.com', 'ceo@modamoda.com', 'governance@modamoda.com']
+            "weekly": {
+                "frequency": "weekly",
+                "template": "weekly_report_template.json",
+                "recipients": [
+                    "board@modamoda.com",
+                    "ceo@modamoda.com",
+                    "governance@modamoda.com",
+                ],
             },
-            'monthly': {
-                'frequency': 'monthly',
-                'template': 'monthly_report_template.json',
-                'recipients': ['board@modamoda.com', 'investors@modamoda.com', 'governance@modamoda.com']
-            }
+            "monthly": {
+                "frequency": "monthly",
+                "template": "monthly_report_template.json",
+                "recipients": [
+                    "board@modamoda.com",
+                    "investors@modamoda.com",
+                    "governance@modamoda.com",
+                ],
+            },
         }
 
     def generate_daily_report(self) -> Dict[str, Any]:
@@ -62,22 +71,24 @@ class GovernanceReporter:
 
         # إنشاء التقرير
         report = {
-            'report_type': 'daily',
-            'date': datetime.now().date(),
-            'generated_at': datetime.now(),
-            'compliance': compliance_data,
-            'project_metrics': project_metrics,
-            'team_activity': team_activity,
-            'risks': risk_assessment,
-            'recommendations': self._generate_daily_recommendations(compliance_data, risk_assessment),
-            'next_steps': self._generate_next_steps(compliance_data)
+            "report_type": "daily",
+            "date": datetime.now().date(),
+            "generated_at": datetime.now(),
+            "compliance": compliance_data,
+            "project_metrics": project_metrics,
+            "team_activity": team_activity,
+            "risks": risk_assessment,
+            "recommendations": self._generate_daily_recommendations(
+                compliance_data, risk_assessment
+            ),
+            "next_steps": self._generate_next_steps(compliance_data),
         }
 
         # حفظ التقرير
-        self._save_report(report, 'daily')
+        self._save_report(report, "daily")
 
         # إرسال التقرير
-        self._send_report_email(report, 'daily')
+        self._send_report_email(report, "daily")
 
         print(f"✅ تم إنشاء التقرير اليومي: {report['date']}")
 
@@ -97,26 +108,28 @@ class GovernanceReporter:
 
         # إنشاء التقرير
         report = {
-            'report_type': 'weekly',
-            'week_start': (datetime.now() - timedelta(days=7)).date(),
-            'week_end': datetime.now().date(),
-            'generated_at': datetime.now(),
-            'weekly_data': weekly_data,
-            'trends': trends,
-            'achievements': achievements,
-            'issues': issues,
-            'action_items': self._generate_action_items(issues),
-            'next_week_focus': self._plan_next_week(weekly_data, issues),
-            'kpi_summary': self._calculate_kpi_summary(weekly_data)
+            "report_type": "weekly",
+            "week_start": (datetime.now() - timedelta(days=7)).date(),
+            "week_end": datetime.now().date(),
+            "generated_at": datetime.now(),
+            "weekly_data": weekly_data,
+            "trends": trends,
+            "achievements": achievements,
+            "issues": issues,
+            "action_items": self._generate_action_items(issues),
+            "next_week_focus": self._plan_next_week(weekly_data, issues),
+            "kpi_summary": self._calculate_kpi_summary(weekly_data),
         }
 
         # حفظ التقرير
-        self._save_report(report, 'weekly')
+        self._save_report(report, "weekly")
 
         # إرسال التقرير
-        self._send_report_email(report, 'weekly')
+        self._send_report_email(report, "weekly")
 
-        print(f"✅ تم إنشاء التقرير الأسبوعي: {report['week_start']} - {report['week_end']}")
+        print(
+            f"✅ تم إنشاء التقرير الأسبوعي: {report['week_start']} - {report['week_end']}"
+        )
 
         return report
 
@@ -134,23 +147,25 @@ class GovernanceReporter:
 
         # إنشاء التقرير
         report = {
-            'report_type': 'monthly',
-            'month': datetime.now().strftime('%Y-%m'),
-            'generated_at': datetime.now(),
-            'monthly_data': monthly_data,
-            'financial_summary': financial_summary,
-            'compliance_trends': compliance_trends,
-            'project_status': project_status,
-            'strategic_insights': self._generate_strategic_insights(monthly_data),
-            'board_recommendations': self._generate_board_recommendations(project_status),
-            'next_month_priorities': self._plan_next_month(project_status)
+            "report_type": "monthly",
+            "month": datetime.now().strftime("%Y-%m"),
+            "generated_at": datetime.now(),
+            "monthly_data": monthly_data,
+            "financial_summary": financial_summary,
+            "compliance_trends": compliance_trends,
+            "project_status": project_status,
+            "strategic_insights": self._generate_strategic_insights(monthly_data),
+            "board_recommendations": self._generate_board_recommendations(
+                project_status
+            ),
+            "next_month_priorities": self._plan_next_month(project_status),
         }
 
         # حفظ التقرير
-        self._save_report(report, 'monthly')
+        self._save_report(report, "monthly")
 
         # إرسال التقرير
-        self._send_report_email(report, 'monthly')
+        self._send_report_email(report, "monthly")
 
         print(f"✅ تم إنشاء التقرير الشهري: {report['month']}")
 
@@ -161,11 +176,11 @@ class GovernanceReporter:
         # البحث عن أحدث ملف امتثال
         compliance_files = list(self.logs_path.glob("compliance_report_*.json"))
         if not compliance_files:
-            return {'error': 'No compliance data found'}
+            return {"error": "No compliance data found"}
 
         latest_file = max(compliance_files, key=lambda f: f.stat().st_mtime)
 
-        with open(latest_file, 'r', encoding='utf-8') as f:
+        with open(latest_file, "r", encoding="utf-8") as f:
             return json.load(f)
 
     def _get_project_metrics(self) -> Dict[str, Any]:
@@ -175,30 +190,30 @@ class GovernanceReporter:
         docs_path = self.project_root / "docs"
 
         metrics = {
-            'code_lines': 0,
-            'test_files': 0,
-            'doc_files': 0,
-            'open_issues': 0,  # يمكن ربطه بـ GitHub/GitLab API
-            'active_branches': 0,
-            'last_commit': None
+            "code_lines": 0,
+            "test_files": 0,
+            "doc_files": 0,
+            "open_issues": 0,  # يمكن ربطه بـ GitHub/GitLab API
+            "active_branches": 0,
+            "last_commit": None,
         }
 
         # عد أسطر الكود
         if src_path.exists():
             for file_path in src_path.glob("**/*.py"):
                 try:
-                    with open(file_path, 'r', encoding='utf-8') as f:
-                        metrics['code_lines'] += len(f.readlines())
+                    with open(file_path, "r", encoding="utf-8") as f:
+                        metrics["code_lines"] += len(f.readlines())
                 except:
                     pass
 
         # عد ملفات الاختبار
         if test_path.exists():
-            metrics['test_files'] = len(list(test_path.glob("**/*.py")))
+            metrics["test_files"] = len(list(test_path.glob("**/*.py")))
 
         # عد ملفات التوثيق
         if docs_path.exists():
-            metrics['doc_files'] = len(list(docs_path.glob("**/*.md")))
+            metrics["doc_files"] = len(list(docs_path.glob("**/*.md")))
 
         return metrics
 
@@ -206,11 +221,11 @@ class GovernanceReporter:
         """الحصول على نشاط الفريق"""
         # محاكاة - يمكن ربطه بـ Git metrics أو project management tools
         return {
-            'commits_today': 0,
-            'pull_requests_open': 0,
-            'issues_closed': 0,
-            'code_reviews_completed': 0,
-            'active_developers': 0
+            "commits_today": 0,
+            "pull_requests_open": 0,
+            "issues_closed": 0,
+            "code_reviews_completed": 0,
+            "active_developers": 0,
         }
 
     def _assess_daily_risks(self) -> List[Dict[str, Any]]:
@@ -219,38 +234,48 @@ class GovernanceReporter:
 
         # فحص المخاطر التقنية
         compliance_data = self._get_latest_compliance_data()
-        if compliance_data.get('overall_compliance', 100) < 80:
-            risks.append({
-                'level': 'HIGH',
-                'category': 'TECHNICAL',
-                'description': f'Compliance below threshold: {compliance_data.get("overall_compliance", 0):.1f}%',
-                'impact': 'Development delays',
-                'mitigation': 'Review compliance issues immediately'
-            })
+        if compliance_data.get("overall_compliance", 100) < 80:
+            risks.append(
+                {
+                    "level": "HIGH",
+                    "category": "TECHNICAL",
+                    "description": f'Compliance below threshold: {compliance_data.get("overall_compliance", 0):.1f}%',
+                    "impact": "Development delays",
+                    "mitigation": "Review compliance issues immediately",
+                }
+            )
 
         # فحص المخاطر الأمنية
         # يمكن إضافة فحوصات أمنية هنا
 
         return risks
 
-    def _generate_daily_recommendations(self, compliance_data: Dict[str, Any], risks: List[Dict[str, Any]]) -> List[str]:
+    def _generate_daily_recommendations(
+        self, compliance_data: Dict[str, Any], risks: List[Dict[str, Any]]
+    ) -> List[str]:
         """توليد التوصيات اليومية"""
         recommendations = []
 
-        compliance_score = compliance_data.get('overall_compliance', 100)
+        compliance_score = compliance_data.get("overall_compliance", 100)
 
         if compliance_score < 70:
-            recommendations.append("🚨 HIGH PRIORITY: Address critical compliance issues immediately")
+            recommendations.append(
+                "🚨 HIGH PRIORITY: Address critical compliance issues immediately"
+            )
             recommendations.append("📋 Schedule compliance review meeting today")
 
         if risks:
-            recommendations.append("⚠️ Review identified risks and implement mitigation plans")
+            recommendations.append(
+                "⚠️ Review identified risks and implement mitigation plans"
+            )
 
-        recommendations.extend([
-            "✅ Continue following development standards from studies",
-            "📊 Monitor compliance metrics throughout the day",
-            "📝 Document any deviations with justification"
-        ])
+        recommendations.extend(
+            [
+                "✅ Continue following development standards from studies",
+                "📊 Monitor compliance metrics throughout the day",
+                "📝 Document any deviations with justification",
+            ]
+        )
 
         return recommendations
 
@@ -258,37 +283,43 @@ class GovernanceReporter:
         """توليد الخطوات التالية"""
         next_steps = []
 
-        compliance_score = compliance_data.get('overall_compliance', 100)
+        compliance_score = compliance_data.get("overall_compliance", 100)
 
         if compliance_score >= 90:
-            next_steps.extend([
-                "🎯 Continue development with current standards",
-                "📈 Focus on optimization and performance improvements",
-                "🔍 Plan for next development phase"
-            ])
+            next_steps.extend(
+                [
+                    "🎯 Continue development with current standards",
+                    "📈 Focus on optimization and performance improvements",
+                    "🔍 Plan for next development phase",
+                ]
+            )
         elif compliance_score >= 70:
-            next_steps.extend([
-                "📋 Address remaining compliance gaps",
-                "🔧 Implement recommended improvements",
-                "📚 Review and update documentation"
-            ])
+            next_steps.extend(
+                [
+                    "📋 Address remaining compliance gaps",
+                    "🔧 Implement recommended improvements",
+                    "📚 Review and update documentation",
+                ]
+            )
         else:
-            next_steps.extend([
-                "🚨 CRITICAL: Pause development and focus on compliance",
-                "📞 Schedule emergency governance meeting",
-                "🔍 Conduct comprehensive project audit"
-            ])
+            next_steps.extend(
+                [
+                    "🚨 CRITICAL: Pause development and focus on compliance",
+                    "📞 Schedule emergency governance meeting",
+                    "🔍 Conduct comprehensive project audit",
+                ]
+            )
 
         return next_steps
 
     def _aggregate_weekly_data(self) -> Dict[str, Any]:
         """تجميع بيانات الأسبوع"""
         weekly_data = {
-            'compliance_scores': [],
-            'commits': [],
-            'issues': [],
-            'risks': [],
-            'days': []
+            "compliance_scores": [],
+            "commits": [],
+            "issues": [],
+            "risks": [],
+            "days": [],
         }
 
         # جمع البيانات من الـ 7 أيام الماضية
@@ -296,11 +327,11 @@ class GovernanceReporter:
             date = (datetime.now() - timedelta(days=i)).date()
             daily_data = self._get_daily_data(date)
 
-            weekly_data['days'].append(date)
-            weekly_data['compliance_scores'].append(daily_data.get('compliance', 0))
-            weekly_data['commits'].append(daily_data.get('commits', 0))
-            weekly_data['issues'].append(daily_data.get('issues', 0))
-            weekly_data['risks'].append(daily_data.get('risks', []))
+            weekly_data["days"].append(date)
+            weekly_data["compliance_scores"].append(daily_data.get("compliance", 0))
+            weekly_data["commits"].append(daily_data.get("commits", 0))
+            weekly_data["issues"].append(daily_data.get("issues", 0))
+            weekly_data["risks"].append(daily_data.get("risks", []))
 
         return weekly_data
 
@@ -308,31 +339,32 @@ class GovernanceReporter:
         """الحصول على بيانات يوم معين"""
         # محاكاة - يمكن ربطها بقاعدة بيانات أو ملفات السجل
         return {
-            'compliance': 85,  # يمكن قراءتها من ملفات السجل
-            'commits': 5,
-            'issues': 2,
-            'risks': []
+            "compliance": 85,  # يمكن قراءتها من ملفات السجل
+            "commits": 5,
+            "issues": 2,
+            "risks": [],
         }
 
     def _analyze_weekly_trends(self, weekly_data: Dict[str, Any]) -> Dict[str, Any]:
         """تحليل اتجاهات الأسبوع"""
-        compliance_scores = weekly_data['compliance_scores']
+        compliance_scores = weekly_data["compliance_scores"]
 
         trends = {
-            'compliance_trend': 'stable',
-            'average_compliance': sum(compliance_scores) / len(compliance_scores),
-            'best_day': max(compliance_scores),
-            'worst_day': min(compliance_scores),
-            'improvement': compliance_scores[-1] - compliance_scores[0]  # مقارنة بداية ونهاية الأسبوع
+            "compliance_trend": "stable",
+            "average_compliance": sum(compliance_scores) / len(compliance_scores),
+            "best_day": max(compliance_scores),
+            "worst_day": min(compliance_scores),
+            "improvement": compliance_scores[-1]
+            - compliance_scores[0],  # مقارنة بداية ونهاية الأسبوع
         }
 
         # تحديد الاتجاه
-        if trends['improvement'] > 5:
-            trends['compliance_trend'] = 'improving'
-        elif trends['improvement'] < -5:
-            trends['compliance_trend'] = 'declining'
+        if trends["improvement"] > 5:
+            trends["compliance_trend"] = "improving"
+        elif trends["improvement"] < -5:
+            trends["compliance_trend"] = "declining"
         else:
-            trends['compliance_trend'] = 'stable'
+            trends["compliance_trend"] = "stable"
 
         return trends
 
@@ -340,17 +372,21 @@ class GovernanceReporter:
         """تحديد الإنجازات"""
         achievements = []
 
-        compliance_scores = weekly_data['compliance_scores']
+        compliance_scores = weekly_data["compliance_scores"]
         avg_compliance = sum(compliance_scores) / len(compliance_scores)
 
         if avg_compliance >= 90:
-            achievements.append("🏆 Maintained excellent compliance standards throughout the week")
+            achievements.append(
+                "🏆 Maintained excellent compliance standards throughout the week"
+            )
 
         if max(compliance_scores) >= 95:
             achievements.append("🎯 Achieved perfect compliance on best performing day")
 
         if len([s for s in compliance_scores if s >= 80]) == len(compliance_scores):
-            achievements.append("✅ Consistent compliance above acceptable levels all week")
+            achievements.append(
+                "✅ Consistent compliance above acceptable levels all week"
+            )
 
         return achievements
 
@@ -358,7 +394,7 @@ class GovernanceReporter:
         """تحديد مشاكل الأسبوع"""
         issues = []
 
-        compliance_scores = weekly_data['compliance_scores']
+        compliance_scores = weekly_data["compliance_scores"]
 
         if min(compliance_scores) < 70:
             issues.append("⚠️ Compliance dropped below acceptable levels on some days")
@@ -374,69 +410,82 @@ class GovernanceReporter:
 
         for issue in issues:
             if "compliance" in issue.lower():
-                action_items.extend([
-                    "🔧 Review and fix compliance issues identified",
-                    "📚 Conduct team training on compliance standards",
-                    "📊 Implement additional monitoring for compliance metrics"
-                ])
+                action_items.extend(
+                    [
+                        "🔧 Review and fix compliance issues identified",
+                        "📚 Conduct team training on compliance standards",
+                        "📊 Implement additional monitoring for compliance metrics",
+                    ]
+                )
 
         return action_items
 
-    def _plan_next_week(self, weekly_data: Dict[str, Any], issues: List[str]) -> List[str]:
+    def _plan_next_week(
+        self, weekly_data: Dict[str, Any], issues: List[str]
+    ) -> List[str]:
         """تخطيط تركيز الأسبوع القادم"""
         focus_areas = []
 
-        compliance_trend = weekly_data.get('trends', {}).get('compliance_trend', 'stable')
+        compliance_trend = weekly_data.get("trends", {}).get(
+            "compliance_trend", "stable"
+        )
 
-        if compliance_trend == 'declining' or issues:
-            focus_areas.extend([
-                "🎯 Prioritize compliance improvements",
-                "📋 Daily compliance monitoring",
-                "🔍 Root cause analysis for compliance issues"
-            ])
+        if compliance_trend == "declining" or issues:
+            focus_areas.extend(
+                [
+                    "🎯 Prioritize compliance improvements",
+                    "📋 Daily compliance monitoring",
+                    "🔍 Root cause analysis for compliance issues",
+                ]
+            )
         else:
-            focus_areas.extend([
-                "🚀 Accelerate development while maintaining standards",
-                "📈 Focus on performance optimization",
-                "🔧 Implement advanced features"
-            ])
+            focus_areas.extend(
+                [
+                    "🚀 Accelerate development while maintaining standards",
+                    "📈 Focus on performance optimization",
+                    "🔧 Implement advanced features",
+                ]
+            )
 
         return focus_areas
 
     def _calculate_kpi_summary(self, weekly_data: Dict[str, Any]) -> Dict[str, Any]:
         """حساب ملخص مؤشرات الأداء الرئيسية"""
         return {
-            'average_compliance': sum(weekly_data['compliance_scores']) / len(weekly_data['compliance_scores']),
-            'total_commits': sum(weekly_data['commits']),
-            'total_issues_resolved': sum(weekly_data['issues']),
-            'compliance_stability': self._calculate_stability(weekly_data['compliance_scores'])
+            "average_compliance": sum(weekly_data["compliance_scores"])
+            / len(weekly_data["compliance_scores"]),
+            "total_commits": sum(weekly_data["commits"]),
+            "total_issues_resolved": sum(weekly_data["issues"]),
+            "compliance_stability": self._calculate_stability(
+                weekly_data["compliance_scores"]
+            ),
         }
 
     def _calculate_stability(self, scores: List[float]) -> str:
         """حساب استقرار المقاييس"""
         if not scores:
-            return 'unknown'
+            return "unknown"
 
         avg = sum(scores) / len(scores)
         variance = sum((x - avg) ** 2 for x in scores) / len(scores)
-        std_dev = variance ** 0.5
+        std_dev = variance**0.5
 
         if std_dev < 5:
-            return 'very_stable'
+            return "very_stable"
         elif std_dev < 10:
-            return 'stable'
+            return "stable"
         elif std_dev < 15:
-            return 'moderate'
+            return "moderate"
         else:
-            return 'unstable'
+            return "unstable"
 
     def _save_report(self, report: Dict[str, Any], report_type: str):
         """حفظ التقرير"""
-        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         filename = f"{report_type}_report_{timestamp}.json"
         filepath = self.reports_path / filename
 
-        with open(filepath, 'w', encoding='utf-8') as f:
+        with open(filepath, "w", encoding="utf-8") as f:
             json.dump(report, f, indent=2, default=str, ensure_ascii=False)
 
         print(f"📄 تم حفظ التقرير: {filepath}")
@@ -474,13 +523,13 @@ class GovernanceReporter:
         """
 
         # إضافة المقاييس حسب نوع التقرير
-        if report_type == 'daily':
+        if report_type == "daily":
             html_content += f"""
                 <p>✅ امتثال عام: {report.get('compliance', {}).get('overall_compliance', 'N/A')}%</p>
                 <p>📊 مقاييس المشروع: {len(report.get('project_metrics', {}))} مؤشر</p>
                 <p>⚠️ المخاطر: {len(report.get('risks', []))} خطر</p>
             """
-        elif report_type == 'weekly':
+        elif report_type == "weekly":
             html_content += f"""
                 <p>📈 متوسط الامتثال: {report.get('kpi_summary', {}).get('average_compliance', 'N/A'):.1f}%</p>
                 <p>🔄 اتجاه الامتثال: {report.get('trends', {}).get('compliance_trend', 'N/A')}</p>
@@ -495,7 +544,9 @@ class GovernanceReporter:
                 <ul>
         """
 
-        recommendations = report.get('recommendations', []) + report.get('next_steps', [])
+        recommendations = report.get("recommendations", []) + report.get(
+            "next_steps", []
+        )
         for rec in recommendations:
             html_content += f"<li>{rec}</li>"
 
@@ -507,10 +558,12 @@ class GovernanceReporter:
         """
 
         # حفظ ملف HTML
-        html_filename = f"{report_type}_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.html"
+        html_filename = (
+            f"{report_type}_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.html"
+        )
         html_filepath = self.reports_path / html_filename
 
-        with open(html_filepath, 'w', encoding='utf-8') as f:
+        with open(html_filepath, "w", encoding="utf-8") as f:
             f.write(html_content)
 
         print(f"🌐 تم إنشاء تقرير HTML: {html_filepath}")
@@ -519,7 +572,7 @@ class GovernanceReporter:
         """إرسال التقرير بالبريد الإلكتروني"""
         # إعدادات البريد الإلكتروني (محاكاة - يحتاج إعداد فعلي)
         config = self.report_config.get(report_type, {})
-        recipients = config.get('recipients', [])
+        recipients = config.get("recipients", [])
 
         if not recipients:
             print("⚠️ لا يوجد مستلمون محددون للتقرير")
@@ -536,12 +589,12 @@ class GovernanceReporter:
         المقاييس الرئيسية:
         """
 
-        if report_type == 'daily':
+        if report_type == "daily":
             body += f"""
             - امتثال عام: {report.get('compliance', {}).get('overall_compliance', 'N/A')}%
             - عدد المخاطر: {len(report.get('risks', []))}
             """
-        elif report_type == 'weekly':
+        elif report_type == "weekly":
             body += f"""
             - متوسط الامتثال: {report.get('kpi_summary', {}).get('average_compliance', 'N/A'):.1f}%
             - اتجاه الامتثال: {report.get('trends', {}).get('compliance_trend', 'N/A')}
@@ -553,6 +606,7 @@ class GovernanceReporter:
         print(f"📧 تم إرسال التقرير إلى: {', '.join(recipients)}")
         print(f"📧 الموضوع: {subject}")
 
+
 def main():
     """الدالة الرئيسية"""
     reporter = GovernanceReporter()
@@ -560,11 +614,11 @@ def main():
     if len(sys.argv) > 1:
         report_type = sys.argv[1].lower()
 
-        if report_type == 'daily':
+        if report_type == "daily":
             report = reporter.generate_daily_report()
-        elif report_type == 'weekly':
+        elif report_type == "weekly":
             report = reporter.generate_weekly_report()
-        elif report_type == 'monthly':
+        elif report_type == "monthly":
             report = reporter.generate_monthly_report()
         else:
             print("❌ نوع تقرير غير صحيح. استخدم: daily, weekly, أو monthly")
@@ -574,6 +628,7 @@ def main():
         report = reporter.generate_daily_report()
 
     print("✅ تم إنشاء التقرير بنجاح!")
+
 
 if __name__ == "__main__":
     main()

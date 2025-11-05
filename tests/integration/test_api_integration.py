@@ -10,6 +10,7 @@ from unittest.mock import patch, AsyncMock, MagicMock
 from fastapi.testclient import TestClient
 from typing import Dict, Any
 
+
 class TestAPIIntegration:
     """اختبارات التكامل للـ API"""
 
@@ -19,19 +20,23 @@ class TestAPIIntegration:
         self.mock_app = MagicMock()
         self.client = TestClient(self.mock_app)
 
-    @patch('aiohttp.ClientSession')
+    @patch("aiohttp.ClientSession")
     async def test_external_api_call_simulation(self, mock_session):
         """اختبار محاكاة استدعاء API خارجي"""
         # محاكاة استجابة API خارجية
         mock_response = AsyncMock()
         mock_response.status = 200
-        mock_response.json = AsyncMock(return_value={"status": "success", "data": "test"})
+        mock_response.json = AsyncMock(
+            return_value={"status": "success", "data": "test"}
+        )
 
-        mock_session.return_value.__aenter__.return_value.get.return_value.__aenter__.return_value = mock_response
+        mock_session.return_value.__aenter__.return_value.get.return_value.__aenter__.return_value = (
+            mock_response
+        )
 
         # محاكاة استدعاء API
         async with aiohttp.ClientSession() as session:
-            async with session.get('https://api.example.com/test') as response:
+            async with session.get("https://api.example.com/test") as response:
                 data = await response.json()
 
         assert response.status == 200
@@ -39,7 +44,7 @@ class TestAPIIntegration:
 
     def test_database_connection_simulation(self):
         """اختبار محاكاة اتصال قاعدة البيانات"""
-        with patch('psycopg2.connect') as mock_connect:
+        with patch("psycopg2.connect") as mock_connect:
             mock_connection = MagicMock()
             mock_connect.return_value = mock_connection
 
@@ -58,7 +63,7 @@ class TestAPIIntegration:
 
     def test_redis_connection_simulation(self):
         """اختبار محاكاة اتصال Redis"""
-        with patch('redis.Redis') as mock_redis:
+        with patch("redis.Redis") as mock_redis:
             mock_client = MagicMock()
             mock_redis.return_value = mock_client
             mock_client.get.return_value = b"test_value"
@@ -72,26 +77,27 @@ class TestAPIIntegration:
 
     def test_file_upload_simulation(self):
         """اختبار محاكاة رفع الملفات"""
-        with patch('builtins.open', create=True) as mock_open:
+        with patch("builtins.open", create=True) as mock_open:
             mock_file = MagicMock()
             mock_open.return_value.__enter__.return_value = mock_file
 
             # محاكاة رفع ملف
-            with open('/tmp/test_file.jpg', 'wb') as f:
+            with open("/tmp/test_file.jpg", "wb") as f:
                 f.write(b"fake image data")
 
             # التحقق من استدعاء open بالمعاملات الصحيحة
-            mock_open.assert_called_with('/tmp/test_file.jpg', 'wb')
+            mock_open.assert_called_with("/tmp/test_file.jpg", "wb")
 
     def test_ai_model_inference_simulation(self):
         """اختبار محاكاة استنتاج نموذج الذكاء الاصطناعي"""
-        with patch('transformers.pipeline') as mock_pipeline:
+        with patch("transformers.pipeline") as mock_pipeline:
             mock_model = MagicMock()
             mock_pipeline.return_value = mock_model
             mock_model.return_value = [{"label": "PERSON", "score": 0.99}]
 
             # محاكاة استنتاج AI
             from transformers import pipeline
+
             model = pipeline("object-detection")
             result = model("test image")
 
@@ -99,7 +105,7 @@ class TestAPIIntegration:
             assert result[0]["label"] == "PERSON"
             assert result[0]["score"] == 0.99
 
-    @patch('celery.Celery')
+    @patch("celery.Celery")
     def test_background_task_simulation(self, mock_celery):
         """اختبار محاكاة المهام الخلفية"""
         mock_app = MagicMock()
@@ -107,10 +113,12 @@ class TestAPIIntegration:
 
         # محاكاة إرسال مهمة خلفية
         from celery import Celery
-        app = Celery('test_app')
-        result = app.send_task('process_image', args=[1, 'test.jpg'])
 
-        mock_app.send_task.assert_called_with('process_image', args=[1, 'test.jpg'])
+        app = Celery("test_app")
+        result = app.send_task("process_image", args=[1, "test.jpg"])
+
+        mock_app.send_task.assert_called_with("process_image", args=[1, "test.jpg"])
+
 
 class TestFastAPITestClient:
     """اختبارات FastAPI TestClient"""
@@ -144,7 +152,9 @@ class TestFastAPITestClient:
         security = HTTPBearer()
 
         @app.get("/protected")
-        async def protected_route(credentials: HTTPAuthorizationCredentials = Depends(security)):
+        async def protected_route(
+            credentials: HTTPAuthorizationCredentials = Depends(security),
+        ):
             if credentials.credentials != "valid_token":
                 raise HTTPException(status_code=401, detail="Invalid token")
             return {"message": "Access granted"}
@@ -160,6 +170,7 @@ class TestFastAPITestClient:
         response = client.get("/protected", headers=headers)
         assert response.status_code == 200
         assert response.json()["message"] == "Access granted"
+
 
 class TestPerformanceBenchmarks:
     """اختبارات الأداء والمقاييس"""
@@ -214,6 +225,7 @@ class TestPerformanceBenchmarks:
         # التحقق من أن استخدام الذاكرة لم يزد بشكل مفرط
         assert memory_after >= memory_before
 
+
 class TestErrorHandling:
     """اختبارات معالجة الأخطاء"""
 
@@ -247,8 +259,7 @@ class TestErrorHandling:
                 return await asyncio.wait_for(call_next(request), timeout=1.0)
             except asyncio.TimeoutError:
                 return JSONResponse(
-                    status_code=408,
-                    content={"error": "Request timeout"}
+                    status_code=408, content={"error": "Request timeout"}
                 )
 
         @app.get("/timeout-test")

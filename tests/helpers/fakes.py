@@ -3,9 +3,7 @@ from contextlib import contextmanager
 import time
 
 
-
 @contextmanager
-
 def fast_timeout(seconds=2.0):
 
     start = time.time()
@@ -13,7 +11,6 @@ def fast_timeout(seconds=2.0):
     yield
 
     assert (time.time() - start) <= seconds, "Timeout exceeded"
-
 
 
 class DummyImage:
@@ -24,4 +21,4 @@ class DummyImage:
 
     def is_valid(self):
 
-        return self.w>0 and self.h>0 and not self.corrupt
+        return self.w > 0 and self.h > 0 and not self.corrupt

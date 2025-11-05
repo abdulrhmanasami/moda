@@ -10,6 +10,7 @@ from pathlib import Path
 from unittest.mock import patch, MagicMock, AsyncMock
 from typing import Dict, Any
 
+
 class TestUserWorkflowE2E:
     """اختبارات سير العمل النهائي للمستخدم"""
 
@@ -21,15 +22,36 @@ class TestUserWorkflowE2E:
         """تنظيف البيئة بعد كل اختبار"""
         shutil.rmtree(self.temp_dir)
 
-    @patch('aiohttp.ClientSession')
+    @patch("aiohttp.ClientSession")
     async def test_complete_user_journey_simulation(self, mock_session):
         """اختبار محاكاة رحلة المستخدم الكاملة"""
         # محاكاة الاستجابات المتتالية
         responses = [
-            AsyncMock(status=200, json=AsyncMock(return_value={"token": "jwt_token_123"})),
-            AsyncMock(status=200, json=AsyncMock(return_value={"upload_url": "https://storage.example.com/upload"})),
-            AsyncMock(status=200, json=AsyncMock(return_value={"job_id": "job_123", "status": "processing"})),
-            AsyncMock(status=200, json=AsyncMock(return_value={"job_id": "job_123", "status": "completed", "result_url": "https://storage.example.com/result.jpg"}))
+            AsyncMock(
+                status=200, json=AsyncMock(return_value={"token": "jwt_token_123"})
+            ),
+            AsyncMock(
+                status=200,
+                json=AsyncMock(
+                    return_value={"upload_url": "https://storage.example.com/upload"}
+                ),
+            ),
+            AsyncMock(
+                status=200,
+                json=AsyncMock(
+                    return_value={"job_id": "job_123", "status": "processing"}
+                ),
+            ),
+            AsyncMock(
+                status=200,
+                json=AsyncMock(
+                    return_value={
+                        "job_id": "job_123",
+                        "status": "completed",
+                        "result_url": "https://storage.example.com/result.jpg",
+                    }
+                ),
+            ),
         ]
 
         mock_session_instance = MagicMock()
@@ -49,7 +71,9 @@ class TestUserWorkflowE2E:
         async with mock_session() as session:
             # 1. تسجيل الدخول
             login_data = {"email": "user@example.com", "password": "secure_pass"}
-            async with session.post("https://api.modamoda.com/auth/login", json=login_data) as resp:
+            async with session.post(
+                "https://api.modamoda.com/auth/login", json=login_data
+            ) as resp:
                 auth_result = await resp.json()
                 journey_steps.append(("login", resp.status, auth_result.get("token")))
 
@@ -60,26 +84,38 @@ class TestUserWorkflowE2E:
             headers = {"Authorization": f"Bearer {auth_result['token']}"}
             upload_data = {"file": image_data, "type": "front_image"}
 
-            async with session.post("https://api.modamoda.com/upload", data=upload_data, headers=headers) as resp:
+            async with session.post(
+                "https://api.modamoda.com/upload", data=upload_data, headers=headers
+            ) as resp:
                 upload_result = await resp.json()
-                journey_steps.append(("upload", resp.status, upload_result.get("upload_url")))
+                journey_steps.append(
+                    ("upload", resp.status, upload_result.get("upload_url"))
+                )
 
             # 3. بدء المعالجة
             process_data = {
                 "image_url": upload_result["upload_url"],
                 "operation": "virtual_tryon",
-                "garment_type": "dress"
+                "garment_type": "dress",
             }
 
-            async with session.post("https://api.modamoda.com/process", json=process_data, headers=headers) as resp:
+            async with session.post(
+                "https://api.modamoda.com/process", json=process_data, headers=headers
+            ) as resp:
                 process_result = await resp.json()
-                journey_steps.append(("process_start", resp.status, process_result.get("job_id")))
+                journey_steps.append(
+                    ("process_start", resp.status, process_result.get("job_id"))
+                )
 
             # 4. التحقق من حالة المعالجة
             job_id = process_result["job_id"]
-            async with session.get(f"https://api.modamoda.com/job/{job_id}", headers=headers) as resp:
+            async with session.get(
+                f"https://api.modamoda.com/job/{job_id}", headers=headers
+            ) as resp:
                 status_result = await resp.json()
-                journey_steps.append(("check_status", resp.status, status_result.get("status")))
+                journey_steps.append(
+                    ("check_status", resp.status, status_result.get("status"))
+                )
 
         # التحقق من نجاح جميع الخطوات
         assert len(journey_steps) == 4
@@ -167,7 +203,7 @@ class TestUserWorkflowE2E:
         initial_data = {
             "name": "Test User",
             "preferences": {"theme": "dark", "language": "ar"},
-            "usage_stats": {"images_processed": 0}
+            "usage_stats": {"images_processed": 0},
         }
         save_user_data(user_id, initial_data)
 
@@ -205,7 +241,7 @@ class TestUserWorkflowE2E:
             result = {
                 "request_id": request_id,
                 "processing_time": end_time - start_time,
-                "status": "completed"
+                "status": "completed",
             }
 
             with lock:
@@ -236,6 +272,7 @@ class TestUserWorkflowE2E:
         request_ids = [r["request_id"] for r in results]
         assert len(set(request_ids)) == num_requests
 
+
 class TestSecurityWorkflowE2E:
     """اختبارات سير العمل الأمني النهائي"""
 
@@ -263,11 +300,14 @@ class TestSecurityWorkflowE2E:
         key_manager.set_secret(f"user_{user_id}_data", encrypted_data, "production")
 
         # 2. تسجيل العملية
-        audit_logger.log("data_encryption", {
-            "user_id": user_id,
-            "operation": "encrypt_and_store",
-            "timestamp": "2025-11-05T01:40:00Z"
-        })
+        audit_logger.log(
+            "data_encryption",
+            {
+                "user_id": user_id,
+                "operation": "encrypt_and_store",
+                "timestamp": "2025-11-05T01:40:00Z",
+            },
+        )
 
         # 3. استرجاع البيانات
         retrieved = key_manager.get_secret(f"user_{user_id}_data", "production")
@@ -289,14 +329,22 @@ class TestSecurityWorkflowE2E:
         user_permissions = {
             "user_basic": ["read_profile"],
             "user_premium": ["read_profile", "upload_images", "process_ai"],
-            "admin": ["read_profile", "upload_images", "process_ai", "manage_users", "view_reports"]
+            "admin": [
+                "read_profile",
+                "upload_images",
+                "process_ai",
+                "manage_users",
+                "view_reports",
+            ],
         }
 
         def check_permission(user_role: str, required_permission: str) -> bool:
             """فحص الصلاحية"""
             return required_permission in user_permissions.get(user_role, [])
 
-        def execute_operation(user_role: str, operation: str, required_perm: str) -> Dict[str, Any]:
+        def execute_operation(
+            user_role: str, operation: str, required_perm: str
+        ) -> Dict[str, Any]:
             """تنفيذ عملية مع فحص الصلاحية"""
             if not check_permission(user_role, required_perm):
                 return {"status": "denied", "reason": "insufficient_permissions"}

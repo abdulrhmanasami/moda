@@ -3,17 +3,12 @@
 import sys, xml.etree.ElementTree as ET
 
 
-
 # خرائط عتبات لكل نمط حزمة
 
 THRESHOLDS = {
-
-  "backend": 0.70,  # Backend code coverage
-
-  # Add more as packages are created
-
+    "backend": 0.70,  # Backend code coverage
+    # Add more as packages are created
 }
-
 
 
 def read_coverage(path="coverage.xml"):
@@ -26,7 +21,7 @@ def read_coverage(path="coverage.xml"):
 
     for pkg in root.iterfind(".//packages/package"):
 
-        name = pkg.get("name","")
+        name = pkg.get("name", "")
 
         lines_valid = 0
 
@@ -36,13 +31,14 @@ def read_coverage(path="coverage.xml"):
 
             lines = cls.find("./lines")
 
-            if lines is None: continue
+            if lines is None:
+                continue
 
             for ln in lines.iter("line"):
 
                 lines_valid += 1
 
-                if int(ln.get("hits","0"))>0:
+                if int(ln.get("hits", "0")) > 0:
 
                     lines_covered += 1
 
@@ -51,9 +47,8 @@ def read_coverage(path="coverage.xml"):
     return out
 
 
-
-def ratio(c,v): return (c/(v or 1))
-
+def ratio(c, v):
+    return c / (v or 1)
 
 
 def main():
@@ -68,11 +63,12 @@ def main():
 
         covered = valid = 0
 
-        for name, (c,v) in cov.items():
+        for name, (c, v) in cov.items():
 
             if name.startswith(pat):
 
-                covered += c; valid += v
+                covered += c
+                valid += v
 
         r = ratio(covered, valid)
 
@@ -93,6 +89,7 @@ def main():
         sys.exit(1)
 
     print("✅ Package coverage gates PASS")
+
 
 if __name__ == "__main__":
 
