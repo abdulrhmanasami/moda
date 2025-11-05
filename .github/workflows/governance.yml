@@ -8,42 +8,18 @@ on:
 
 jobs:
   promql_check:
-  promql_tests:
-    name: PromQL SLO Tests
-    runs-on: ubuntu-latest
-    needs: promql_check
-    steps:
-      - uses: actions/checkout@v4
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: "3.11"
-    - name: Install Python deps (CI)
-    - name: Set PYTHONPATH
-      run: echo "PYTHONPATH=$GITHUB_WORKSPACE" >> $GITHUB_ENV
-      run: pip install -r requirements/ci.txt
-      - name: Download promtool
-        run: |
-          VER=2.53.1
-          curl -sSL -o /tmp/prom.tgz https://github.com/prometheus/prometheus/releases/download/v${VER}/prometheus-${VER}.linux-amd64.tar.gz
-          tar -xzf /tmp/prom.tgz -C /tmp
-          sudo mv /tmp/prometheus-${VER}.linux-amd64/promtool /usr/local/bin/promtool
-      - name: Run PromQL SLO Tests
-        run: |
-          ./tools/observability/run_promql_tests.sh
-
     name: Prometheus rules check
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Set up Helm
-        uses: azure/setup-helm@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          version: v3.14.4
-      - name: Install yq
-        run: |
-          sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/download/v4.44.3/yq_linux_amd64
-          sudo chmod +x /usr/local/bin/yq
+          python-version: "3.11"
+      - name: Install Python deps (CI)
+        run: pip install -r requirements/ci.txt
+      - name: Set PYTHONPATH
+        run: echo "PYTHONPATH=$GITHUB_WORKSPACE" >> $GITHUB_ENV
       - name: Download promtool
         run: |
           VER=2.53.1
@@ -58,6 +34,30 @@ jobs:
       - name: promtool check rules
         run: |
           promtool check rules "${{ steps.render.outputs.rules }}"
+
+  promql_tests:
+    name: PromQL SLO Tests
+    runs-on: ubuntu-latest
+    needs: promql_check
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install Python deps (CI)
+        run: pip install -r requirements/ci.txt
+      - name: Set PYTHONPATH
+        run: echo "PYTHONPATH=$GITHUB_WORKSPACE" >> $GITHUB_ENV
+      - name: Download promtool
+        run: |
+          VER=2.53.1
+          curl -sSL -o /tmp/prom.tgz https://github.com/prometheus/prometheus/releases/download/v${VER}/prometheus-${VER}.linux-amd64.tar.gz
+          tar -xzf /tmp/prom.tgz -C /tmp
+          sudo mv /tmp/prometheus-${VER}.linux-amd64/promtool /usr/local/bin/promtool
+      - name: Run PromQL SLO Tests
+        run: |
+          ./tools/observability/run_promql_tests.sh
 
   helm_validate:
     runs-on: ubuntu-latest
