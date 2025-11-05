@@ -63,3 +63,20 @@ monitoring:
     enabled: true
     release: "prom"
     interval: "30s"
+  alerts:
+    enabled: true
+    # النسبة المطلوبة لحساب p-quantile (0.95 = p95)
+    latencyP95: 0.95
+    # الحد الأعلى المسموح للـ p95 latency بالثواني
+    latencyP95ThresholdSeconds: 0.5
+    # الحد الأعلى لمعدل أخطاء 5xx (مثلاً 1% = 0.01)
+    errorRateThreshold: 0.01
+    # مدة الاستمرار قبل إطلاق التنبيه
+    for: 5m
+
+env:
+  OBS_ENABLE_METRICS: "true"
+  OTEL_EXPORTER_OTLP_ENDPOINT: ""      # مثال: "http://otel-collector:4317"
+  OTEL_SERVICE_NAME: "modamoda-api"
+  OTEL_SERVICE_NAMESPACE: "modamoda"
+  OTEL_SERVICE_VERSION: "1.0.0-rc1"

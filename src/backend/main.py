@@ -6,63 +6,84 @@ Main application entry point with OpenTelemetry monitoring
 """
 
 import os
+import time
+from typing import Callable
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
-import time
-from prometheus_client import Counter, Histogram, Gauge, generate_latest, CONTENT_TYPE_LATEST
-from opentelemetry import trace
-from opentelemetry.sdk.trace import TracerProvider
-from opentelemetry.sdk.trace.export import BatchSpanProcessor
-from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
-from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
-from opentelemetry.sdk.resources import Resource
+from prometheus_client import Counter, Histogram, CollectorRegistry, CONTENT_TYPE_LATEST, generate_latest
+from starlette.responses import Response as StarletteResponse
 
-# Configure OpenTelemetry
-resource = Resource.create({
-    "service.name": "modamoda-backend",
-    "service.version": "0.1.0",
-    "service.instance.id": os.getenv("HOSTNAME", "localhost")
-})
+# -------- Observability (Prometheus) --------
+OBS_ENABLE_METRICS = os.getenv("OBS_ENABLE_METRICS", "false").lower() in {"1","true","yes"}
+_registry = CollectorRegistry() if OBS_ENABLE_METRICS else None
 
-trace.set_tracer_provider(TracerProvider(resource=resource))
+if OBS_ENABLE_METRICS:
+    REQUEST_COUNT = Counter(
+        'http_requests_total',
+        'Total number of HTTP requests',
+        ['method', 'endpoint', 'status_code'],
+        registry=_registry
+    )
 
-# Configure OTLP exporter for Jaeger/OTel collector
-otel_endpoint = os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT", "http://otel-collector:4317")
-otlp_exporter = OTLPSpanExporter(endpoint=otel_endpoint, insecure=True)
-span_processor = BatchSpanProcessor(otlp_exporter)
-trace.get_tracer_provider().add_span_processor(span_processor)
+    REQUEST_LATENCY = Histogram(
+        'http_request_duration_seconds',
+        'HTTP request latency in seconds',
+        ['method', 'endpoint'],
+        registry=_registry,
+        buckets=(0.05,0.1,0.25,0.5,0.75,1.0,1.5,2.0,3.0,5.0,10.0)
+    )
 
-# Create tracer
-tracer = trace.get_tracer(__name__)
+    IMAGE_ACCURACY_GAUGE = Gauge(
+        'image_accuracy_score',
+        'Current image accuracy score for virtual try-on',
+        registry=_registry
+    )
 
-# Prometheus metrics
-REQUEST_COUNT = Counter(
-    'http_requests_total',
-    'Total number of HTTP requests',
-    ['method', 'endpoint', 'status_code']
-)
+    ERROR_RATE_GAUGE = Gauge(
+        'error_rate_percentage',
+        'Current error rate percentage',
+        registry=_registry
+    )
 
-REQUEST_LATENCY = Histogram(
-    'http_request_duration_seconds',
-    'HTTP request latency in seconds',
-    ['method', 'endpoint'],
-    buckets=[0.1, 0.5, 1.0, 2.0, 5.0, 10.0, 30.0]
-)
+    ACTIVE_CONNECTIONS = Gauge(
+        'active_connections',
+        'Number of active connections',
+        registry=_registry
+    )
 
-IMAGE_ACCURACY_GAUGE = Gauge(
-    'image_accuracy_score',
-    'Current image accuracy score for virtual try-on'
-)
+# -------- OpenTelemetry (optional) --------
+if os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT"):
+    try:
+        from opentelemetry import trace
+        from opentelemetry.sdk.resources import Resource
+        from opentelemetry.sdk.trace import TracerProvider
+        from opentelemetry.sdk.trace.export import BatchSpanProcessor
+        from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
+        from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+        from opentelemetry.instrumentation.logging import LoggingInstrumentation
+        from opentelemetry.instrumentation.requests import RequestsInstrumentor
 
-ERROR_RATE_GAUGE = Gauge(
-    'error_rate_percentage',
-    'Current error rate percentage'
-)
+        res = Resource.create({
+            "service.name": os.getenv("OTEL_SERVICE_NAME","modamoda-api"),
+            "service.namespace": os.getenv("OTEL_SERVICE_NAMESPACE","modamoda"),
+            "service.version": os.getenv("OTEL_SERVICE_VERSION","1.0.0-rc1"),
+        })
+        provider = TracerProvider(resource=res)
+        provider.add_span_processor(BatchSpanProcessor(OTLPSpanExporter()))
+        trace.set_tracer_provider(provider)
 
-ACTIVE_CONNECTIONS = Gauge(
-    'active_connections',
-    'Number of active connections'
-)
+        # Create tracer
+        tracer = trace.get_tracer(__name__)
+
+        FastAPIInstrumentor.instrument_app(app)
+        LoggingInstrumentation().instrument(set_logging_format=True)
+        RequestsInstrumentor().instrument()
+    except Exception as _e:
+        # Do not fail app if OTel optional deps mismatch
+        tracer = None
+        pass
+else:
+    tracer = None
 
 # Create FastAPI application
 app = FastAPI(
@@ -80,39 +101,41 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Custom middleware for metrics collection
-@app.middleware("http")
-async def metrics_middleware(request: Request, call_next):
-    """Middleware to collect HTTP metrics"""
-    start_time = time.time()
-    method = request.method
-    path = request.url.path
+# -------- Prometheus Middleware --------
+if OBS_ENABLE_METRICS:
+    @app.middleware("http")
+    async def prometheus_middleware(request: Request, call_next: Callable):
+        start = time.perf_counter()
+        method = request.method
+        # Normalize path (optional): collapse ids → :id
+        path = request.scope.get("route").path if request.scope.get("route") else request.url.path
 
-    # Track active connections
-    ACTIVE_CONNECTIONS.inc()
+        # Track active connections
+        ACTIVE_CONNECTIONS.inc()
 
-    try:
-        response = await call_next(request)
-        status_code = response.status_code
+        try:
+            response = await call_next(request)
+            dur = max(0.0, time.perf_counter() - start)
+            status_code = response.status_code
 
-        # Record metrics
-        REQUEST_COUNT.labels(method=method, endpoint=path, status_code=status_code).inc()
-        REQUEST_LATENCY.labels(method=method, endpoint=path).observe(time.time() - start_time)
+            # Record metrics
+            REQUEST_COUNT.labels(method=method, endpoint=path, status_code=status_code).inc()
+            REQUEST_LATENCY.labels(method=method, endpoint=path).observe(dur)
 
-        return response
-    except Exception as e:
-        # Record error metrics
-        REQUEST_COUNT.labels(method=method, endpoint=path, status_code=500).inc()
-        REQUEST_LATENCY.labels(method=method, endpoint=path).observe(time.time() - start_time)
-        raise e
-    finally:
-        ACTIVE_CONNECTIONS.dec()
+            return response
+        except Exception as e:
+            # Record error metrics
+            dur = max(0.0, time.perf_counter() - start)
+            REQUEST_COUNT.labels(method=method, endpoint=path, status_code=500).inc()
+            REQUEST_LATENCY.labels(method=method, endpoint=path).observe(dur)
+            raise e
+        finally:
+            ACTIVE_CONNECTIONS.dec()
 
-# Prometheus metrics endpoint
-@app.get("/metrics")
-async def metrics():
-    """Prometheus metrics endpoint"""
-    return Response(content=generate_latest(), media_type=CONTENT_TYPE_LATEST)
+    @app.get("/metrics")
+    async def metrics():
+        data = generate_latest(_registry)
+        return StarletteResponse(content=data, media_type=CONTENT_TYPE_LATEST)
 
 @app.get("/")
 async def root():
@@ -127,28 +150,51 @@ async def health_check():
 @app.post("/api/v1/try-on")
 async def virtual_try_on():
     """Virtual try-on endpoint - simulates AI processing"""
-    with tracer.start_as_current_span("virtual_try_on_processing") as span:
-        span.set_attribute("operation", "image_processing")
-        span.set_attribute("model_version", "v1.0")
+    if tracer:
+        with tracer.start_as_current_span("virtual_try_on_processing") as span:
+            span.set_attribute("operation", "image_processing")
+            span.set_attribute("model_version", "v1.0")
 
-        # Simulate processing time and accuracy
+            # Simulate processing time and accuracy
+            import random
+            processing_time = random.uniform(0.5, 2.0)  # Simulate 0.5-2 second processing
+            accuracy = random.uniform(0.95, 0.99)  # Simulate high accuracy
+
+            if OBS_ENABLE_METRICS:
+                # Update metrics
+                IMAGE_ACCURACY_GAUGE.set(accuracy * 100)
+
+            # Simulate occasional errors (2% error rate)
+            if random.random() < 0.02:
+                if OBS_ENABLE_METRICS:
+                    ERROR_RATE_GAUGE.set(2.0)
+                span.set_status(trace.Status(trace.StatusCode.ERROR, "Processing failed"))
+                raise Exception("AI processing failed")
+
+            if OBS_ENABLE_METRICS:
+                ERROR_RATE_GAUGE.set(0.5)  # Low error rate
+
+            span.set_attribute("processing_time", processing_time)
+            span.set_attribute("accuracy_score", accuracy)
+
+            return {
+                "result": "success",
+                "processing_time": processing_time,
+                "accuracy": accuracy,
+                "image_url": "https://example.com/generated-image.jpg"
+            }
+    else:
+        # Fallback without tracing
         import random
-        processing_time = random.uniform(0.5, 2.0)  # Simulate 0.5-2 second processing
-        accuracy = random.uniform(0.95, 0.99)  # Simulate high accuracy
+        processing_time = random.uniform(0.5, 2.0)
+        accuracy = random.uniform(0.95, 0.99)
 
-        # Update metrics
-        IMAGE_ACCURACY_GAUGE.set(accuracy * 100)
-
-        # Simulate occasional errors (2% error rate)
-        if random.random() < 0.02:
-            ERROR_RATE_GAUGE.set(2.0)
-            span.set_status(trace.Status(trace.StatusCode.ERROR, "Processing failed"))
-            raise Exception("AI processing failed")
-
-        ERROR_RATE_GAUGE.set(0.5)  # Low error rate
-
-        span.set_attribute("processing_time", processing_time)
-        span.set_attribute("accuracy_score", accuracy)
+        if OBS_ENABLE_METRICS:
+            IMAGE_ACCURACY_GAUGE.set(accuracy * 100)
+            if random.random() < 0.02:
+                ERROR_RATE_GAUGE.set(2.0)
+                raise Exception("AI processing failed")
+            ERROR_RATE_GAUGE.set(0.5)
 
         return {
             "result": "success",
@@ -156,9 +202,6 @@ async def virtual_try_on():
             "accuracy": accuracy,
             "image_url": "https://example.com/generated-image.jpg"
         }
-
-# Instrument FastAPI with OpenTelemetry
-FastAPIInstrumentor.instrument_app(app)
 
 if __name__ == "__main__":
     import uvicorn

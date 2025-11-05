@@ -1,0 +1,34 @@
+{{- if .Values.monitoring.alerts.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ include "modamoda.fullname" . }}-slo
+  labels:
+    {{- include "modamoda.labels" . | nindent 4 }}
+    release: {{ .Values.monitoring.serviceMonitor.release | default "prom" }}
+spec:
+  groups:
+  - name: modamoda.slo
+    rules:
+    - alert: ModamodaHighP95Latency
+      expr: |
+        histogram_quantile({{ .Values.monitoring.alerts.latencyP95 }}, sum(rate(http_request_duration_seconds_bucket{job=~"{{ include "modamoda.fullname" . }}.*"}[5m])) by (le))
+        > {{ .Values.monitoring.alerts.latencyP95ThresholdSeconds }}
+      for: {{ .Values.monitoring.alerts.for | default "5m" }}
+      labels:
+        severity: warning
+      annotations:
+        summary: "High p95 latency"
+        description: "p95 latency above {{ .Values.monitoring.alerts.latencyP95ThresholdSeconds }}s for 5m"
+    - alert: ModamodaHighErrorRate
+      expr: |
+        (sum(rate(http_requests_total{job=~"{{ include "modamoda.fullname" . }}.*",status=~"5.."}[5m])) by ()
+         /
+         sum(rate(http_requests_total{job=~"{{ include "modamoda.fullname" . }}.*"}[5m])) by ()) > {{ .Values.monitoring.alerts.errorRateThreshold }}
+      for: {{ .Values.monitoring.alerts.for | default "5m" }}
+      labels:
+        severity: warning
+      annotations:
+        summary: "High 5xx error rate"
+        description: "5xx error rate above {{ .Values.monitoring.alerts.errorRateThreshold*100 }}% for 5m"
+{{- end }}

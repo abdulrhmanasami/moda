@@ -33,6 +33,27 @@ jobs:
                 - drop-net-raw-capability
                 - no-read-only-root-fs-disabled
           args: analyze .manifest.yaml
+
+  obs_smoke:
+    runs-on: ubuntu-latest
+    needs: [helm_validate, tfsec, checks, studies_lock]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install deps (runtime only)
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install uvicorn prometheus-client
+      - name: Launch API (background)
+        env:
+          OBS_ENABLE_METRICS: "true"
+        run: |
+          nohup python -m uvicorn src.backend.main:app --host 0.0.0.0 --port 8000 >/dev/null 2>&1 &
+          for i in {1..30}; do curl -sf http://127.0.0.1:8000/health && break || sleep 1; done
+      - name: Probe /health
+        run: curl -sf http://127.0.0.1:8000/health
+      - name: Probe /metrics
+        run: curl -sf http://127.0.0.1:8000/metrics | head -n 20
+
   studies_lock:
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
