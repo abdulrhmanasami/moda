@@ -24,6 +24,12 @@ jobs:
       - name: Compliance
         run: python3 tools/compliance/compliance_checker
 
+      - name: PR Study Enforcer
+        env:
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+          GITHUB_EVENT_PATH: ${{ github.event_path }}
+        run: tools/governance/pr_study_enforcer.sh
+
       - name: Generate PR Comment
         if: github.event_name == 'pull_request'
         run: |
