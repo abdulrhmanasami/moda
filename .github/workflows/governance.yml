@@ -6,6 +6,23 @@ on:
     branches: [ main ]
 
 jobs:
+  studies_lock:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate studies registry
+        run: |
+          python3 tools/governance_toolkit/core/validate_registry.py
+      - name: Enforce RFC on canonical changes
+        run: |
+          CHANGED=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | tr "\n" " ")
+          if echo "$CHANGED" | grep -q "governance/studies/registry.json"; then
+            MSG=$(jq -r .pull_request.title < $GITHUB_EVENT_PATH)
+            echo "PR title: $MSG"
+            echo "$MSG" | egrep -q "RFC-[0-9]{3,}" || (echo 'Missing RFC in title (RFC-###) for registry change' && exit 1)
+          fi
+        shell: bash
   checks:
     runs-on: ubuntu-latest
     steps:

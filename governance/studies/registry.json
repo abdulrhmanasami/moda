@@ -1,50 +1,64 @@
 {
   "version": "1.0.0",
-  "revision": "GOV-STUDIES-NORMALIZE-001",
+  "revision": {
+    "original": "GOV-STUDIES-NORMALIZE-001",
+    "locked_at": "2025-11-05T10:59:35.036739Z"
+  },
   "description": "Normalized Studies Registry - Single Source of Truth",
   "created": "2025-11-05T12:00:00Z",
-  "studies": {
-    "ST-001": {
+  "studies": [
+    {
       "canonical_path": "studies/master_studies/MODAMODA_INVISIBLE_MANNEQUIN_MASTER_STUDY.md",
       "title": "Modamoda Invisible Mannequin Master Study",
-      "aliases": ["studies/master_studies/Comprehensive Analysis of the Invisible Mannequin Project.md"],
+      "aliases": [
+        "studies/master_studies/Comprehensive Analysis of the Invisible Mannequin Project.md"
+      ],
       "category": "master_studies",
       "status": "active",
-      "last_updated": "2025-11-05"
+      "last_updated": "2025-11-05",
+      "id": "ST-001"
     },
-    "ST-002": {
+    {
       "canonical_path": "studies/master_studies/DEVELOPMENT_ROADMAP.md",
       "title": "Development Roadmap",
       "aliases": [],
       "category": "master_studies",
       "status": "active",
-      "last_updated": "2025-11-05"
+      "last_updated": "2025-11-05",
+      "id": "ST-002"
     },
-    "ST-005": {
+    {
       "canonical_path": "studies/master_studies/BUSINESS_ANALYSIS.md",
       "title": "Business Analysis",
-      "aliases": ["studies/business_analysis/01_تحليل_السوق_والاستراتيجية_التنافسية_المحسن.md"],
+      "aliases": [
+        "studies/business_analysis/01_تحليل_السوق_والاستراتيجية_التنافسية_المحسن.md"
+      ],
       "category": "master_studies",
       "status": "active",
-      "last_updated": "2025-11-05"
+      "last_updated": "2025-11-05",
+      "id": "ST-005"
     },
-    "ST-007": {
+    {
       "canonical_path": "studies/technical_specs/03_الهيكلية_والمكدس_التقني_المحسن.md",
       "title": "Technical Architecture & Stack",
-      "aliases": ["studies/master_studies/TECHNICAL_SPECIFICATION.md"],
+      "aliases": [
+        "studies/master_studies/TECHNICAL_SPECIFICATION.md"
+      ],
       "category": "technical_specs",
       "status": "active",
-      "last_updated": "2025-11-05"
+      "last_updated": "2025-11-05",
+      "id": "ST-007"
     },
-    "ST-008": {
+    {
       "canonical_path": "studies/core_strategy/00_الملخص_التنفيذي_الشامل_المحسن.md",
       "title": "Executive Summary",
       "aliases": [],
       "category": "core_strategy",
       "status": "active",
-      "last_updated": "2025-11-05"
+      "last_updated": "2025-11-05",
+      "id": "ST-008"
     },
-    "ST-011": {
+    {
       "canonical_path": "studies/implementation_phases/05_خارطة_الطريق_المنهجية_المحسن.md",
       "title": "Methodical Development Roadmap",
       "aliases": [
@@ -55,41 +69,51 @@
       ],
       "category": "implementation_phases",
       "status": "active",
-      "last_updated": "2025-11-05"
+      "last_updated": "2025-11-05",
+      "id": "ST-011"
     },
-    "ST-013": {
+    {
       "canonical_path": "studies/technical_specs/04_استراتيجية_نموذج_الذكاء_الاصطناعي_الأساسي_المحسن.md",
       "title": "Core AI Model Strategy",
-      "aliases": ["studies/technical_specs/ai_model_strategy_axis5.md"],
+      "aliases": [
+        "studies/technical_specs/ai_model_strategy_axis5.md"
+      ],
       "category": "technical_specs",
       "status": "active",
-      "last_updated": "2025-11-05"
+      "last_updated": "2025-11-05",
+      "id": "ST-013"
     },
-    "ST-014": {
+    {
       "canonical_path": "studies/business_analysis/06_المخطط_التشغيلي_والمالي_المحسن.md",
       "title": "Operational & Financial Plan",
-      "aliases": ["studies/business_analysis/market_open_source_axis4.md", "studies/business_analysis/numbers_operations_axis6.md"],
+      "aliases": [
+        "studies/business_analysis/market_open_source_axis4.md",
+        "studies/business_analysis/numbers_operations_axis6.md"
+      ],
       "category": "business_analysis",
       "status": "active",
-      "last_updated": "2025-11-05"
+      "last_updated": "2025-11-05",
+      "id": "ST-014"
     },
-    "ST-015": {
+    {
       "canonical_path": "studies/core_strategy/02_استراتيجية_نموذج_العمل_والانتشار_المحسن.md",
       "title": "Business Model & Deployment Strategy",
       "aliases": [],
       "category": "core_strategy",
       "status": "active",
-      "last_updated": "2025-11-05"
+      "last_updated": "2025-11-05",
+      "id": "ST-015"
     },
-    "ST-019": {
+    {
       "canonical_path": "studies/MASTER_STUDIES_INDEX.md",
       "title": "Smart Studies Navigation Index",
       "aliases": [],
       "category": "master_studies",
       "status": "active",
-      "last_updated": "2025-11-05"
+      "last_updated": "2025-11-05",
+      "id": "ST-019"
     }
-  },
+  ],
   "categories": {
     "master_studies": {
       "description": "Primary reference documents and comprehensive analysis",
@@ -132,5 +156,10 @@
     "rfc_required_for_changes": true,
     "checksum_verification_required": true,
     "automated_validation_enabled": true
+  },
+  "lock": {
+    "enabled": true,
+    "requires_rfc": true,
+    "rfc_pattern": "RFC-[0-9]{3,}"
   }
 }
