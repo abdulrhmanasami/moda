@@ -169,6 +169,10 @@
       "rev": "v1.0",
       "sha256": "263de86d088519dff3913ed73855500822636b7e289ea7afe950bb7efcae9bd6",
       "enforced": true,
+      "canonical_path": "technical_specs/04_استراتيجية_نموذج_الذكاء_الاصطناعي_الأساسي_المحسن.md",
+      "aliases": [],
+      "category": "technical_specs",
+      "size_bytes": 5554,
       "owners": [
         "@cto",
         "@technology-committee"
