@@ -3,11 +3,10 @@
 اختبارات مدير المفاتيح - Key Manager Tests
 """
 
-import pytest
 import tempfile
 import shutil
 from pathlib import Path
-from unittest.mock import patch, mock_open
+from unittest.mock import patch
 from scripts.devops.keys.key_manager import KeyManager
 
 

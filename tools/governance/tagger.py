@@ -1,7 +1,11 @@
 # @Study:ST-019
 #!/usr/bin/env python3
 
-import sys, re, json, yaml, pathlib, fnmatch
+import sys
+import re
+import yaml
+import pathlib
+import fnmatch
 
 COMMENT = {
     ".py": "#",

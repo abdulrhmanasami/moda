@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 
-import json, sys, hashlib, os, subprocess
+import json
+import sys
+import hashlib
+import os
 
 REG = "governance/studies/registry.json"
 

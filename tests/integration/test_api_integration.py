@@ -3,12 +3,9 @@
 اختبارات التكامل للـ API - API Integration Tests
 """
 
-import pytest
-import asyncio
 import aiohttp
 from unittest.mock import patch, AsyncMock, MagicMock
 from fastapi.testclient import TestClient
-from typing import Dict, Any
 
 
 class TestAPIIntegration:

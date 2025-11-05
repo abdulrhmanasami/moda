@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 
-import pathlib, re, sys, json, yaml
+import pathlib
+import re
+import sys
+import yaml
 
 COMMENT = {
     ".py": "#",

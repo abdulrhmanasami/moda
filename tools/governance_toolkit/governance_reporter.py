@@ -5,17 +5,11 @@
 يولد تقارير دورية شاملة عن حالة المشروع والامتثال
 """
 
-import os
 import sys
 import json
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
 from pathlib import Path
 from datetime import datetime, timedelta
-from typing import Dict, List, Any, Optional
-import matplotlib.pyplot as plt
-import pandas as pd
+from typing import Dict, List, Any
 
 
 class GovernanceReporter:

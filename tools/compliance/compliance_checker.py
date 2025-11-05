@@ -8,15 +8,11 @@
 يضمن الامتثال الكامل مع الدراسات والمعايير الفنية
 """
 
-import os
-import sys
 import ast
 import json
-import subprocess
 from pathlib import Path
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any
 from datetime import datetime
-import re
 
 
 class ComplianceChecker:

@@ -8,11 +8,12 @@ Main application entry point with OpenTelemetry monitoring
 import os
 import time
 from typing import Callable
-from fastapi import FastAPI, Request, Response
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from prometheus_client import (
     Counter,
     Histogram,
+    Gauge,
     CollectorRegistry,
     CONTENT_TYPE_LATEST,
     generate_latest,
@@ -57,6 +58,13 @@ if OBS_ENABLE_METRICS:
         "active_connections", "Number of active connections", registry=_registry
     )
 
+# Create FastAPI application
+app = FastAPI(
+    title="Modamoda Invisible Mannequin API",
+    description="AI-powered fashion virtual try-on platform with SLO monitoring",
+    version="0.1.0",
+)
+
 # -------- OpenTelemetry (optional) --------
 if os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT"):
     try:
@@ -91,16 +99,8 @@ if os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT"):
     except Exception as _e:
         # Do not fail app if OTel optional deps mismatch
         tracer = None
-        pass
 else:
     tracer = None
-
-# Create FastAPI application
-app = FastAPI(
-    title="Modamoda Invisible Mannequin API",
-    description="AI-powered fashion virtual try-on platform with SLO monitoring",
-    version="0.1.0",
-)
 
 # Configure CORS
 app.add_middleware(

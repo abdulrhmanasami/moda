@@ -3,7 +3,6 @@
 اختبارات سير العمل النهائي للمستخدم - User Workflow E2E Tests
 """
 
-import pytest
 import tempfile
 import shutil
 from pathlib import Path

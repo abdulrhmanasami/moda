@@ -3,7 +3,6 @@
 اختبارات نظام العمليات الأمنية - Security Operations Tests
 """
 
-import pytest
 import json
 import tempfile
 import shutil
