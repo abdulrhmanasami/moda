@@ -1,0 +1,40 @@
+replicaCount: 3
+
+resources:
+  requests: { cpu: "200m", memory: "256Mi" }
+  limits:   { cpu: "1",    memory: "1Gi" }
+
+securityContext:
+  runAsNonRoot: true
+  readOnlyRootFilesystem: true
+
+containerSecurityContext:
+  allowPrivilegeEscalation: false
+  capabilities: { drop: ["ALL"] }
+
+livenessProbe:
+  httpGet: { path: /health, port: http }
+  initialDelaySeconds: 20
+  periodSeconds: 10
+
+readinessProbe:
+  httpGet: { path: /ready, port: http }
+  initialDelaySeconds: 10
+  periodSeconds: 5
+
+podDisruptionBudget:
+  minAvailable: 2
+
+serviceAccount:
+  create: true
+  annotations:
+    eks.amazonaws.com/role-arn: arn:aws:iam::<ACCOUNT_ID>:role/modamoda-irsa
+
+networkPolicy:
+  enabled: true
+  ingress:
+    - fromNamespaces: ["ingress-nginx"]
+      ports: [80, 443]
+  egress:
+    - toCIDRs: ["0.0.0.0/0"]
+      ports: [443]

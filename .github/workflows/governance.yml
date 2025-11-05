@@ -189,3 +189,14 @@ jobs:
                  --data "$PAYLOAD" \
                  ${{ secrets.SLACK_WEBHOOK }}
           fi
+
+  tfsec:
+    name: tfsec
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aquasecurity/tfsec-action@v1.0.3
+        with:
+          working_directory: infrastructure/terraform
+          additional_args: --minimum-severity HIGH
