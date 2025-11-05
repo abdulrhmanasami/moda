@@ -35,14 +35,14 @@ jobs:
         run: tools/hygiene/repo_hygiene.sh
       
       - name: Governance Monitor
-        run: tools/governance/governance_monitor.py
+        run: python3 tools/governance/governance_monitor.py
       
       - name: Coverage Gate
         env: { COVERAGE_THRESHOLD: "0.80" }
         run: tools/quality/coverage_gate.sh
       
       - name: Compliance
-        run: tools/compliance/compliance_checker.py
+        run: python3 tools/compliance/compliance_checker.py
 
       - name: Generate PR Comment
         if: github.event_name == 'pull_request'
