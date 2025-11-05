@@ -1,0 +1,17 @@
+{{- if .Values.limitRange.enabled }}
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: {{ include "modamoda.fullname" . }}-limits
+  labels:
+    {{- include "modamoda.labels" . | nindent 4 }}
+spec:
+  limits:
+  - type: Container
+    default:
+      cpu: {{ .Values.limitRange.default.cpu | quote }}
+      memory: {{ .Values.limitRange.default.memory | quote }}
+    defaultRequest:
+      cpu: {{ .Values.limitRange.requests.cpu | quote }}
+      memory: {{ .Values.limitRange.requests.memory | quote }}
+{{- end }}

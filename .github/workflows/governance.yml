@@ -6,6 +6,33 @@ on:
     branches: [ main ]
 
 jobs:
+  helm_validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: azure/setup-helm@v4
+      - name: Helm lint
+        run: helm lint infrastructure/helm/modamoda
+      - name: Render manifests
+        run: helm template modamoda infrastructure/helm/modamoda -f infrastructure/helm/modamoda/values-secure.yaml > .manifest.yaml
+      - name: kubeconform
+        uses: yannh/kubeconform-action@v1.3.0
+        with:
+          files: .manifest.yaml
+          summary: true
+          strict: true
+      - name: kube-linter
+        uses: stackrox/kube-linter-action@v1
+        with:
+          config: |
+            checks:
+              include:
+                - privilege-escalation-container
+                - required-labels
+                - minimum-replica-count
+                - drop-net-raw-capability
+                - no-read-only-root-fs-disabled
+          args: analyze .manifest.yaml
   studies_lock:
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'

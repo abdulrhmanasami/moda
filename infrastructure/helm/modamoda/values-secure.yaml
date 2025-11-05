@@ -38,3 +38,28 @@ networkPolicy:
   egress:
     - toCIDRs: ["0.0.0.0/0"]
       ports: [443]
+
+# === Hardened addenda (STEP3) ===
+networkPolicy:
+  enabled: true
+  ingressNamespace: "ingress-nginx"   # عدّلها حسب اسم NS عندك
+  egressCIDR: "0.0.0.0/0"            # TLS فقط
+limitRange:
+  enabled: true
+  requests: { cpu: "200m", memory: "256Mi" }
+  default:  { cpu: "500m", memory: "512Mi" }
+resourceQuota:
+  enabled: true
+  hard:
+    requestsCpu: "2"
+    requestsMemory: "4Gi"
+    limitsCpu: "4"
+    limitsMemory: "8Gi"
+    pods: "10"
+namespaceLabels:
+  enabled: false   # فعلها فقط إذا الـChart هو اللي بيخلق الـNS
+monitoring:
+  serviceMonitor:
+    enabled: true
+    release: "prom"
+    interval: "30s"
