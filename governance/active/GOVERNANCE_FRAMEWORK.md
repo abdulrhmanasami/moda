@@ -1251,7 +1251,7 @@
 **لقرار تجاري:**
 ```
 اقرأ ← studies/business_analysis/ (التحليلات المالية)
-راجع ← studies/core_strategy/business_model_strategy.md
+راجع ← studies/core_strategy/02_استراتيجية_نموذج_العمل_والانتشار_المحسن.md
 قارن ← studies/implementation_phases/05_خارطة_الطريق_المنهجية_المحسن.md
 احصل على موافقة ← GOVERNANCE_FRAMEWORK.md (لجنة الحوكمة)
 ```

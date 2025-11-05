@@ -1,0 +1,246 @@
+# @Study:ST-012 @Study:ST-019
+# Default values for Modamoda Helm chart
+
+# Global configuration
+global:
+  imageRegistry: ""
+  imagePullSecrets: []
+  storageClass: ""
+
+  # Domain configuration
+  domain: modamoda.local
+
+  # Environment
+  environment: development
+
+# Application configuration
+app:
+  image:
+    repository: modamoda/backend
+    tag: "latest"
+    pullPolicy: IfNotPresent
+
+  replicaCount: 2
+
+  port: 8000
+
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 2Gi
+    requests:
+      cpu: 500m
+      memory: 1Gi
+
+  nodeSelector: {}
+
+  tolerations: []
+
+  affinity: {}
+
+  # Environment variables
+  env:
+    - name: ENVIRONMENT
+      value: "{{ .Values.global.environment }}"
+    - name: API_V1_STR
+      value: "/api/v1"
+    - name: PROJECT_NAME
+      value: "Modamoda Invisible Mannequin"
+
+  # Secrets (external)
+  secrets:
+    databaseUrl: ""
+    redisUrl: ""
+    secretKey: ""
+    jwtSecretKey: ""
+    openaiApiKey: ""
+
+# Frontend configuration
+frontend:
+  enabled: true
+
+  image:
+    repository: modamoda/frontend
+    tag: "latest"
+    pullPolicy: IfNotPresent
+
+  replicaCount: 2
+
+  port: 3000
+
+  resources:
+    limits:
+      cpu: 500m
+      memory: 1Gi
+    requests:
+      cpu: 250m
+      memory: 512Mi
+
+  nodeSelector: {}
+
+  tolerations: []
+
+  affinity: {}
+
+# PostgreSQL configuration
+postgresql:
+  enabled: true
+
+  auth:
+    postgresPassword: "modamoda_pass_2025_secure"
+    username: "modamoda_user"
+    password: "modamoda_pass_2025_secure"
+    database: "modamoda_dev"
+
+  architecture: standalone
+
+  primary:
+    persistence:
+      enabled: true
+      size: 20Gi
+
+    resources:
+      limits:
+        cpu: 1000m
+        memory: 2Gi
+      requests:
+        cpu: 500m
+        memory: 1Gi
+
+# Redis configuration
+redis:
+  enabled: true
+
+  auth:
+    enabled: false
+
+  architecture: standalone
+
+  master:
+    persistence:
+      enabled: true
+      size: 10Gi
+
+    resources:
+      limits:
+        cpu: 500m
+        memory: 1Gi
+      requests:
+        cpu: 250m
+        memory: 512Mi
+
+# MinIO configuration
+minio:
+  enabled: true
+
+  auth:
+    rootUser: "modamoda_access_key"
+    rootPassword: "modamoda_secret_key_2025_secure"
+
+  defaultBuckets: "modamoda-storage"
+
+  persistence:
+    enabled: true
+    size: 50Gi
+
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 2Gi
+    requests:
+      cpu: 500m
+      memory: 1Gi
+
+# Ingress configuration
+ingress:
+  enabled: true
+
+  className: "nginx"
+
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+
+  hosts:
+    - host: "{{ .Values.global.domain }}"
+      paths:
+        - path: "/api"
+          pathType: Prefix
+          backend:
+            service:
+              name: "{{ include \"modamoda.fullname\" . }}-backend"
+              port:
+                number: 8000
+        - path: "/"
+          pathType: Prefix
+          backend:
+            service:
+              name: "{{ include \"modamoda.fullname\" . }}-frontend"
+              port:
+                number: 3000
+
+  tls:
+    - secretName: modamoda-tls
+      hosts:
+        - "{{ .Values.global.domain }}"
+
+# Service accounts
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+# Pod Security Context
+podSecurityContext:
+  fsGroup: 65534
+
+# Security Context
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 65534
+  runAsGroup: 65534
+
+# Monitoring
+monitoring:
+  enabled: true
+
+  prometheus:
+    enabled: true
+
+  grafana:
+    enabled: true
+
+  alerts:
+    enabled: true
+
+# Autoscaling
+autoscaling:
+  enabled: true
+
+  minReplicas: 2
+  maxReplicas: 10
+
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+
+# Horizontal Pod Autoscaler
+hpa:
+  enabled: true
+
+  minReplicas: 2
+  maxReplicas: 10
+
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80

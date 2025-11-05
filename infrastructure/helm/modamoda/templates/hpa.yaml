@@ -1,0 +1,30 @@
+# @Study:ST-012 @Study:ST-019
+{{- if .Values.hpa.enabled }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "modamoda.fullname" . }}-backend-hpa
+  labels:
+    app.kubernetes.io/name: {{ include "modamoda.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: backend
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "modamoda.fullname" . }}-backend
+  minReplicas: {{ .Values.hpa.minReplicas }}
+  maxReplicas: {{ .Values.hpa.maxReplicas }}
+  metrics:
+    {{- range .Values.hpa.metrics }}
+    - type: {{ .type }}
+      {{- if eq .type "Resource" }}
+      resource:
+        name: {{ .resource.name }}
+        target:
+          type: {{ .resource.target.type }}
+          averageUtilization: {{ .resource.target.averageUtilization }}
+      {{- end }}
+    {{- end }}
+{{- end }}

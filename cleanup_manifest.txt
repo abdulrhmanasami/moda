@@ -1,0 +1,41 @@
+=== توثيق الملفات المراد حذفها ===
+
+=== ملفات PDF المراد حذفها ===
+./studies/core_strategy/00_الملخص_التنفيذي_الشامل.pdf
+./studies/core_strategy/02_استراتيجية_نموذج_العمل_والانتشار.pdf
+./studies/technical_specs/04_استراتيجية_نموذج_الذكاء_الاصطناعي_الأساسي.pdf
+./studies/technical_specs/03_الهيكلية_والمكدس_التقني.pdf
+./studies/implementation_phases/05_خارطة_الطريق_المنهجية.pdf
+./studies/business_analysis/06_المخطط_التشغيلي_والمالي.pdf
+./studies/business_analysis/01_تحليل_السوق_والاستراتيجية_التنافسية.pdf
+./governance/legal/Cursor_Governance_Executive_Ticket.pdf
+
+=== ملفات الدراسات الإنجليزية المكررة ===
+studies/business_analysis/market_competitive_analysis.md
+studies/business_analysis/operational_financial_plan.md
+studies/core_strategy/comprehensive_executive_summary.md
+
+=== أدوات tools المكررة ===
+tools/compliance/compliance_checker
+tools/governance/governance_monitor
+tools/governance/governance_reporter.py
+
+=== ملفات الخطط المتداخلة ===
+studies/core_strategy/business_model_strategy.md
+studies/core_strategy/enhanced_executive_plan.md
+studies/core_strategy/unified_executive_summary_roadmap.md
+
+=== ملفات أخرى ===
+studies/studies.zip
+
+=== فحص المراجع ===
+./studies/README.md:├── 🏢 business_model_strategy.md (نموذج العمل والإيرادات)
+./studies/README.md:├── 📋 comprehensive_executive_summary.md (الملخص الشامل)
+./studies/README.md:├── 🗺️ unified_executive_summary_roadmap.md (الخارطة الموحدة)
+./studies/README.md:├── 📊 enhanced_executive_plan.md (الخطة المحسنة)
+./studies/README.md:├── 🏪 market_competitive_analysis.md (التحليل التنافسي)
+./studies/README.md:├── 📈 operational_financial_plan.md (المخطط المالي)
+./studies/README.md:راجع ← core_strategy/business_model_strategy.md
+./studies/MASTER_STUDIES_INDEX.md:├── 📋 business_model_strategy.md (نموذج العمل التفصيلي)
+./studies/MASTER_STUDIES_INDEX.md:├── 🎯 comprehensive_executive_summary.md (الملخص الشامل)
+./studies/MASTER_STUDIES_INDEX.md:├── 🗺️ unified_executive_summary_roadmap.md (الخارطة الموحدة)

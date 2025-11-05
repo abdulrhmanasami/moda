@@ -30,6 +30,27 @@ jobs:
           GITHUB_EVENT_PATH: ${{ github.event_path }}
         run: tools/governance/pr_study_enforcer.sh
 
+      - name: Fast Tests
+        run: |
+          echo "🚀 Running Fast Test Suite..."
+          npm run test:unit
+          npm run test:integration
+          echo "✅ Fast tests completed successfully"
+
+      - name: Infrastructure Validation
+        run: |
+          echo "🏗️ Validating Infrastructure as Code..."
+          cd infrastructure/terraform
+          terraform init -backend=false
+          terraform validate
+          echo "✅ Infrastructure validation passed"
+
+      - name: Helm Chart Validation
+        run: |
+          echo "⚓ Validating Helm Charts..."
+          helm template test infrastructure/helm/modamoda --dry-run
+          echo "✅ Helm charts validation passed"
+
       - name: Generate PR Comment
         if: github.event_name == 'pull_request'
         run: |
