@@ -21,6 +21,14 @@ spec:
         app.kubernetes.io/name: {{ include "modamoda.name" . }}
         app.kubernetes.io/instance: {{ .Release.Name }}
         app.kubernetes.io/component: backend
+      annotations:
+        # Prometheus scraping annotations
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "{{ .Values.app.port }}"
+        prometheus.io/path: "/metrics"
+        # OpenTelemetry annotations
+        instrumentation.opentelemetry.io/inject-java: "false"
+        instrumentation.opentelemetry.io/inject-python: "true"
     spec:
       {{- with .Values.app.nodeSelector }}
       nodeSelector:

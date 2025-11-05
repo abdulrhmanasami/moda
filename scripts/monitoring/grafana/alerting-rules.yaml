@@ -1,0 +1,60 @@
+# @Study:ST-012 @Study:ST-019
+# Grafana Alerting Rules for MODA SLO monitoring
+apiVersion: 1
+groups:
+  - name: MODA SLO Alerts
+    rules:
+      - alert: HighLatency
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{method="POST", endpoint="/api/v1/try-on"}[5m])) > 0.15
+        for: 5m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "High P95 latency detected"
+          description: "P95 latency for virtual try-on endpoint exceeded 150ms"
+          value: "{{ $value }}s"
+
+      - alert: LowAvailability
+        expr: (1 - (rate(http_requests_total{status_code=~"5.."}[5m]) / rate(http_requests_total[5m]))) < 0.999
+        for: 10m
+        labels:
+          severity: critical
+          team: platform
+        annotations:
+          summary: "Low availability detected"
+          description: "Service availability dropped below 99.9% SLO"
+          value: "{{ $value }}%"
+
+      - alert: LowAccuracy
+        expr: image_accuracy_score < 99.5
+        for: 15m
+        labels:
+          severity: warning
+          team: ml
+        annotations:
+          summary: "Low image accuracy detected"
+          description: "Image accuracy dropped below 99.5% SLO"
+          value: "{{ $value }}%"
+
+      - alert: HighErrorRate
+        expr: rate(http_requests_total{status_code=~"5.."}[5m]) / rate(http_requests_total[5m]) > 0.02
+        for: 5m
+        labels:
+          severity: warning
+          team: platform
+        annotations:
+          summary: "High error rate detected"
+          description: "Error rate exceeded 2%"
+          value: "{{ $value }}%"
+
+      - alert: HighActiveConnections
+        expr: active_connections > 100
+        for: 2m
+        labels:
+          severity: info
+          team: platform
+        annotations:
+          summary: "High active connections"
+          description: "Active connections exceeded 100"
+          value: "{{ $value }}"

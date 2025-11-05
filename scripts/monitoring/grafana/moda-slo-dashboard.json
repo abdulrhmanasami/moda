@@ -1,0 +1,142 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "MODA SLO Dashboard",
+    "tags": ["moda", "slo", "monitoring"],
+    "timezone": "UTC",
+    "panels": [
+      {
+        "id": 1,
+        "title": "API P95 Latency SLO",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{method=\"POST\", endpoint=\"/api/v1/try-on\"}[5m])) * 1000",
+            "legendFormat": "P95 Latency (ms)"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "ms",
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"value": null, "color": "green"},
+                {"value": 150, "color": "yellow"},
+                {"value": 200, "color": "red"}
+              ]
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0}
+      },
+      {
+        "id": 2,
+        "title": "Availability SLO (99.9%)",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "(1 - (rate(http_requests_total{status_code=~\"5..\"}[5m]) / rate(http_requests_total[5m]))) * 100",
+            "legendFormat": "Availability %"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"value": null, "color": "red"},
+                {"value": 99.9, "color": "yellow"},
+                {"value": 99.95, "color": "green"}
+              ]
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0}
+      },
+      {
+        "id": 3,
+        "title": "Image Accuracy SLO (99.5%)",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "image_accuracy_score",
+            "legendFormat": "Accuracy %"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"value": null, "color": "red"},
+                {"value": 99.5, "color": "yellow"},
+                {"value": 99.8, "color": "green"}
+              ]
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8}
+      },
+      {
+        "id": 4,
+        "title": "Request Rate & Error Rate",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(http_requests_total{method=\"POST\", endpoint=\"/api/v1/try-on\"}[5m])",
+            "legendFormat": "Request Rate"
+          },
+          {
+            "expr": "rate(http_requests_total{status_code=~\"5..\"}[5m])",
+            "legendFormat": "Error Rate"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8}
+      },
+      {
+        "id": 5,
+        "title": "Latency Distribution",
+        "type": "heatmap",
+        "targets": [
+          {
+            "expr": "rate(http_request_duration_seconds_bucket{method=\"POST\", endpoint=\"/api/v1/try-on\"}[5m])",
+            "legendFormat": "{{ le }}"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 24, "x": 0, "y": 16}
+      },
+      {
+        "id": 6,
+        "title": "Active Connections",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "active_connections",
+            "legendFormat": "Active Connections"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 24}
+      },
+      {
+        "id": 7,
+        "title": "SLO Breach Alerts",
+        "type": "table",
+        "targets": [
+          {
+            "expr": "ALERTS{alertstate=\"firing\"}",
+            "legendFormat": "{{ alertname }}"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 24}
+      }
+    ],
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "refresh": "30s"
+  }
+}

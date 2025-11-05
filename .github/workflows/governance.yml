@@ -22,7 +22,15 @@ jobs:
         run: tools/quality/coverage_gate.sh
       
       - name: Compliance
-        run: python3 tools/compliance/compliance_checker
+        run: python3 scripts/compliance_checker.py
+
+      - name: PyTest (unit+critical)
+        run: |
+          python3 -m pip install --break-system-packages pytest-cov httpx prometheus_client opentelemetry-sdk opentelemetry-instrumentation-fastapi opentelemetry-exporter-otlp-proto-grpc
+          python3 -m pytest -q --maxfail=1 --disable-warnings --cov=src --cov=scripts --cov-report=term --cov-report=xml tests/critical/
+
+      - name: Package Coverage Gate
+        run: python3 tools/quality/coverage_packages_gate.py
 
       - name: PR Study Enforcer
         env:
