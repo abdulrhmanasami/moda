@@ -14,6 +14,14 @@ jobs:
     needs: promql_check
     steps:
       - uses: actions/checkout@v4
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.11"
+    - name: Install Python deps (CI)
+    - name: Set PYTHONPATH
+      run: echo "PYTHONPATH=$GITHUB_WORKSPACE" >> $GITHUB_ENV
+      run: pip install -r requirements/ci.txt
       - name: Download promtool
         run: |
           VER=2.53.1

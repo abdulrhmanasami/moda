@@ -1,0 +1,21 @@
+# Core needed by governance/obs scripts & smoke tests
+
+aiohttp==3.9.5
+
+prometheus-client>=0.17
+
+PyYAML>=6.0
+
+jsonschema>=4.22
+
+typer>=0.12
+
+click>=8.1
+
+
+
+# smoke: run FastAPI app locally in CI
+
+fastapi>=0.115
+
+uvicorn>=0.30
