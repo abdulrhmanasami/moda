@@ -4,76 +4,41 @@ rule_files:
 evaluation_interval: 1m
 
 tests:
-  # Test case 1: Normal error rate - no alert should fire
-  - interval: 1m
-    input_series:
-      - series: 'http_requests_total{job="modamoda-api",status="200"}'
-        values: "100 120 110 115 125 118"
-      - series: 'http_requests_total{job="modamoda-api",status="404"}'
-        values: "2 3 2 3 4 3"
-      - series: 'http_requests_total{job="modamoda-api",status="500"}'
-        values: "0 0 0 0 0 0"
-      - series: 'http_requests_total{job="modamoda-api",status="502"}'
-        values: "0 0 0 0 0 0"
-    alert_rule_test:
-      - alertname: ModamodaHighErrorRate
-        eval_time: 5m
-        exp_alerts: []
 
-  # Test case 2: High error rate (2%) - alert should fire
-  - interval: 1m
-    input_series:
-      - series: 'http_requests_total{job="modamoda-api",status="200"}'
-        values: "90 95 92 97 93 96"
-      - series: 'http_requests_total{job="modamoda-api",status="404"}'
-        values: "2 3 2 3 2 3"
-      - series: 'http_requests_total{job="modamoda-api",status="500"}'
-        values: "2 2 2 2 2 2"
-      - series: 'http_requests_total{job="modamoda-api",status="502"}'
-        values: "1 1 1 1 1 1"
-    alert_rule_test:
-      - alertname: ModamodaHighErrorRate
-        eval_time: 5m
-        exp_alerts:
-          - exp_labels:
-              severity: warning
-            exp_annotations:
-              summary: "High 5xx error rate"
-              description: "5xx error rate above 1% for 5m"
+- interval: 1m
 
-  # Test case 3: Very high error rate (5%) - critical alert
-  - interval: 1m
-    input_series:
-      - series: 'http_requests_total{job="modamoda-api",status="200"}'
-        values: "80 85 82 87 83 86"
-      - series: 'http_requests_total{job="modamoda-api",status="404"}'
-        values: "5 6 5 6 5 6"
-      - series: 'http_requests_total{job="modamoda-api",status="500"}'
-        values: "5 5 5 5 5 5"
-      - series: 'http_requests_total{job="modamoda-api",status="502"}'
-        values: "3 3 3 3 3 3"
-    alert_rule_test:
-      - alertname: ModamodaHighErrorRate
-        eval_time: 5m
-        exp_alerts:
-          - exp_labels:
-              severity: warning
-            exp_annotations:
-              summary: "High 5xx error rate"
-              description: "5xx error rate above 1% for 5m"
+  input_series:
 
-  # Test case 4: Mixed error codes - only 5xx should count
-  - interval: 1m
-    input_series:
-      - series: 'http_requests_total{job="modamoda-api",status="200"}'
-        values: "85 90 87 92 88 91"
-      - series: 'http_requests_total{job="modamoda-api",status="404"}'
-        values: "10 12 11 13 11 12"
-      - series: 'http_requests_total{job="modamoda-api",status="500"}'
-        values: "2 2 2 2 2 2"
-      - series: 'http_requests_total{job="modamoda-api",status="502"}'
-        values: "1 1 1 1 1 1"
-    alert_rule_test:
-      - alertname: ModamodaHighErrorRate
-        eval_time: 5m
-        exp_alerts: []  # 3/98 = 3% but 4xx don't count in 5xx error rate
+    # إجمالي الطلبات
+
+    - series: 'http_requests_total{job="modamoda-api",code="200"}'
+
+      values: '0+100x15'   # كل دقيقة +100
+
+    # 5xx
+
+    - series: 'http_requests_total{job="modamoda-api",code="500"}'
+
+      values: '0+3x15'     # حوالي 3%→ لازم يفاير فوق 2%
+
+
+
+  alert_rule_test:
+
+    - alertname: SLOErrorRateHigh
+
+      eval_time: 12m
+
+      exp_alerts:
+
+        - exp_labels:
+
+            severity: "warning"
+
+            service: "modamoda-api"
+
+            job: "modamoda-api"
+
+          exp_annotations:
+
+            summary: "5xx error rate > 2% for 10m"

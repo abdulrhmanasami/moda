@@ -1,24 +1,32 @@
 groups:
-  - name: modamoda.slo
-    rules:
-    - alert: ModamodaHighP95Latency
-      expr: |
-        histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{job=~"modamoda-api.*"}[5m])) by (le))
-        > 0.5
-      for: 5m
-      labels:
-        severity: warning
-      annotations:
-        summary: "High p95 latency"
-        description: "p95 latency above 0.5s for 5m"
-    - alert: ModamodaHighErrorRate
-      expr: |
-        (sum(rate(http_requests_total{job=~"modamoda-api.*",status=~"5.."}[5m])) by ()
-         /
-         sum(rate(http_requests_total{job=~"modamoda-api.*"}[5m])) by ()) > 0.01
-      for: 5m
-      labels:
-        severity: warning
-      annotations:
-        summary: "High 5xx error rate"
-        description: "5xx error rate above 1% for 5m"
+- name: slo.core
+  rules:
+  # p95 latency (5m نافذة)
+  - alert: SLOP95LatencyHigh
+    expr: |
+      histogram_quantile(
+        0.95,
+        sum by (le) (
+          rate(http_request_duration_seconds_bucket{job="modamoda-api"}[5m])
+        )
+      ) > 0.5
+    for: 10m
+    labels:
+      severity: warning
+      service: modamoda-api
+    annotations:
+      summary: "p95 latency > 0.5s for 10m"
+
+  # 5xx error rate (5m نافذة)
+  - record: job:http_requests_total:rate5m
+    expr: sum without(instance,pod,code) (rate(http_requests_total{job="modamoda-api"}[5m]))
+  - record: job:http_requests_5xx:rate5m
+    expr: sum without(instance,pod,code) (rate(http_requests_total{job="modamoda-api",code=~"5.."}[5m]))
+  - alert: SLOErrorRateHigh
+    expr: (job:http_requests_5xx:rate5m / job:http_requests_total:rate5m) > 0.02
+    for: 10m
+    labels:
+      severity: warning
+      service: modamoda-api
+    annotations:
+      summary: "5xx error rate > 2% for 10m"

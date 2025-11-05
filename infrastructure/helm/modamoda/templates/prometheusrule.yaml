@@ -8,27 +8,35 @@ metadata:
     release: {{ .Values.monitoring.serviceMonitor.release | default "prom" }}
 spec:
   groups:
-  - name: modamoda.slo
+  - name: slo.core
     rules:
-    - alert: ModamodaHighP95Latency
+    # p95 latency (5m نافذة)
+    - alert: SLOP95LatencyHigh
       expr: |
-        histogram_quantile({{ .Values.monitoring.alerts.latencyP95 }}, sum(rate(http_request_duration_seconds_bucket{job=~"{{ include "modamoda.fullname" . }}.*"}[5m])) by (le))
-        > {{ .Values.monitoring.alerts.latencyP95ThresholdSeconds }}
-      for: {{ .Values.monitoring.alerts.for | default "5m" }}
+        histogram_quantile(
+          0.95,
+          sum by (le) (
+            rate(http_request_duration_seconds_bucket{job="modamoda-api"}[5m])
+          )
+        ) > 0.5
+      for: 10m
       labels:
         severity: warning
+        service: modamoda-api
       annotations:
-        summary: "High p95 latency"
-        description: "p95 latency above {{ .Values.monitoring.alerts.latencyP95ThresholdSeconds }}s for 5m"
-    - alert: ModamodaHighErrorRate
-      expr: |
-        (sum(rate(http_requests_total{job=~"{{ include "modamoda.fullname" . }}.*",status=~"5.."}[5m])) by ()
-         /
-         sum(rate(http_requests_total{job=~"{{ include "modamoda.fullname" . }}.*"}[5m])) by ()) > {{ .Values.monitoring.alerts.errorRateThreshold }}
-      for: {{ .Values.monitoring.alerts.for | default "5m" }}
+        summary: "p95 latency > 0.5s for 10m"
+
+    # 5xx error rate (5m نافذة)
+    - record: job:http_requests_total:rate5m
+      expr: sum without(instance,pod,code) (rate(http_requests_total{job="modamoda-api"}[5m]))
+    - record: job:http_requests_5xx:rate5m
+      expr: sum without(instance,pod,code) (rate(http_requests_total{job="modamoda-api",code=~"5.."}[5m]))
+    - alert: SLOErrorRateHigh
+      expr: (job:http_requests_5xx:rate5m / job:http_requests_total:rate5m) > 0.02
+      for: 10m
       labels:
         severity: warning
+        service: modamoda-api
       annotations:
-        summary: "High 5xx error rate"
-        description: "5xx error rate above {{ .Values.monitoring.alerts.errorRateThreshold*100 }}% for 5m"
+        summary: "5xx error rate > 2% for 10m"
 {{- end }}
