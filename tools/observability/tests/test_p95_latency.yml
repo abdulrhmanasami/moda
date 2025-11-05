@@ -1,0 +1,63 @@
+rule_files:
+  - rules.yml
+
+evaluation_interval: 1m
+
+tests:
+  # Test case 1: Normal latency - no alert should fire
+  - interval: 1m
+    input_series:
+      - series: 'http_request_duration_seconds_bucket{job="modamoda-api",le="0.1"}'
+        values: "10 15 20 12 18 14"
+      - series: 'http_request_duration_seconds_bucket{job="modamoda-api",le="0.5"}'
+        values: "25 30 35 28 32 30"
+      - series: 'http_request_duration_seconds_bucket{job="modamoda-api",le="1.0"}'
+        values: "35 40 45 38 42 40"
+      - series: 'http_request_duration_seconds_bucket{job="modamoda-api",le="+Inf"}'
+        values: "40 45 50 43 47 45"
+    alert_rule_test:
+      - alertname: ModamodaHighP95Latency
+        eval_time: 5m
+        exp_alerts: []
+
+  # Test case 2: High latency - alert should fire
+  - interval: 1m
+    input_series:
+      - series: 'http_request_duration_seconds_bucket{job="modamoda-api",le="0.1"}'
+        values: "5 8 6 7 9 8"
+      - series: 'http_request_duration_seconds_bucket{job="modamoda-api",le="0.5"}'
+        values: "15 18 16 17 19 18"
+      - series: 'http_request_duration_seconds_bucket{job="modamoda-api",le="1.0"}'
+        values: "25 28 26 27 29 28"
+      - series: 'http_request_duration_seconds_bucket{job="modamoda-api",le="+Inf"}'
+        values: "30 33 31 32 34 33"
+    alert_rule_test:
+      - alertname: ModamodaHighP95Latency
+        eval_time: 5m
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+            exp_annotations:
+              summary: "High p95 latency"
+              description: "p95 latency above 0.5s for 5m"
+
+  # Test case 3: Critical high latency (p95 > 2s)
+  - interval: 1m
+    input_series:
+      - series: 'http_request_duration_seconds_bucket{job="modamoda-api",le="0.1"}'
+        values: "2 3 2 3 4 3"
+      - series: 'http_request_duration_seconds_bucket{job="modamoda-api",le="0.5"}'
+        values: "5 6 5 6 7 6"
+      - series: 'http_request_duration_seconds_bucket{job="modamoda-api",le="1.0"}'
+        values: "8 9 8 9 10 9"
+      - series: 'http_request_duration_seconds_bucket{job="modamoda-api",le="+Inf"}'
+        values: "15 25 15 25 35 25"
+    alert_rule_test:
+      - alertname: ModamodaHighP95Latency
+        eval_time: 5m
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+            exp_annotations:
+              summary: "High p95 latency"
+              description: "p95 latency above 0.5s for 5m"

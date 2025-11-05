@@ -7,6 +7,22 @@ on:
 
 jobs:
   promql_check:
+  promql_tests:
+    name: PromQL SLO Tests
+    runs-on: ubuntu-latest
+    needs: promql_check
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download promtool
+        run: |
+          VER=2.53.1
+          curl -sSL -o /tmp/prom.tgz https://github.com/prometheus/prometheus/releases/download/v${VER}/prometheus-${VER}.linux-amd64.tar.gz
+          tar -xzf /tmp/prom.tgz -C /tmp
+          sudo mv /tmp/prometheus-${VER}.linux-amd64/promtool /usr/local/bin/promtool
+      - name: Run PromQL SLO Tests
+        run: |
+          ./tools/observability/run_promql_tests.sh
+
     name: Prometheus rules check
     runs-on: ubuntu-latest
     steps:
