@@ -19,15 +19,15 @@ jobs:
       - name: Install kubeconform
         run: |
           curl -L https://github.com/yannh/kubeconform/releases/download/v0.6.6/kubeconform-linux-amd64.tar.gz \
-          | tar xz && sudo mv kubeconform /usr/local/bin/
+          | tar xz && sudo mv kubeconform /usr/local/bin/ && rm -f kubeconform-linux-amd64.tar.gz
       - name: Install kube-linter
         run: |
           curl -L https://github.com/stackrox/kube-linter/releases/download/v0.6.6/kube-linter-linux.tar.gz \
-          | tar xz && sudo mv kube-linter /usr/local/bin/
+          | tar xz && sudo mv kube-linter /usr/local/bin/ && rm -f kube-linter-linux.tar.gz
       - name: Install promtool
         run: |
           curl -L https://github.com/prometheus/prometheus/releases/download/v2.53.1/prometheus-2.53.1.linux-amd64.tar.gz \
-          | tar xz && sudo mv prometheus-2.53.1.linux-amd64/promtool /usr/local/bin/
+          | tar xz && sudo mv prometheus-2.53.1.linux-amd64/promtool /usr/local/bin/ && rm -rf prometheus-2.53.1.linux-amd64
       - name: Make scripts executable
         run: chmod +x tools/observability/*.sh || true
 
