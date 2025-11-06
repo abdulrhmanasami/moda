@@ -1,0 +1,21 @@
+# @Study:ST-012 @Study:ST-019
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "modamoda.fullname" . }}-backend
+  labels:
+    app.kubernetes.io/name: {{ include "modamoda.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: backend
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  type: ClusterIP
+  ports:
+    - port: {{ .Values.app.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: {{ include "modamoda.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: backend

@@ -1,0 +1,64 @@
+rule_files:
+  - rules.yml
+
+evaluation_interval: 1m
+
+tests:
+
+- interval: 1m
+
+  input_series:
+
+    # buckets لازم تغطي كم le واقعي
+
+    - series: 'http_request_duration_seconds_bucket{job="modamoda-api",le="0.1"}'
+
+      values: '0 10 20 30 40 50 60 70 80 90 100 110 120 130 140'
+
+    - series: 'http_request_duration_seconds_bucket{job="modamoda-api",le="0.5"}'
+
+      values: '0 15 30 45 60 75 90 105 120 135 150 165 180 195 210'
+
+    - series: 'http_request_duration_seconds_bucket{job="modamoda-api",le="1"}'
+
+      values: '0 18 36 54 72 90 108 126 144 162 180 198 216 234 252'
+
+    - series: 'http_request_duration_seconds_bucket{job="modamoda-api",le="2"}'
+
+      values: '0 20 40 60 80 100 120 140 160 180 200 220 240 260 280'
+
+    - series: 'http_request_duration_seconds_bucket{job="modamoda-api",le="+Inf"}'
+
+      values: '0 22 44 66 88 110 132 154 176 198 220 242 264 286 308'
+
+
+
+  alert_rule_test:
+
+    # السيناريو الطبيعي: ما لازم يفاير
+
+    - alertname: SLOP95LatencyHigh
+
+      eval_time: 5m
+
+      exp_alerts: []
+
+
+
+    # سيناريو مرتفع: ارفع +Inf بسرعة حتى يتجاوز p95 > 0.5s
+
+    - alertname: SLOP95LatencyHigh
+
+      eval_time: 12m
+
+      exp_alerts:
+
+        - exp_labels:
+
+            severity: "warning"
+
+            service: "modamoda-api"
+
+          exp_annotations:
+
+            summary: "p95 latency > 0.5s for 10m"

@@ -1,0 +1,47 @@
+# @Study:ST-012 @Study:ST-019
+apiVersion: v2
+name: modamoda
+description: Modamoda Invisible Mannequin Platform
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
+
+keywords:
+  - ai
+  - fashion
+  - virtual-try-on
+  - machine-learning
+
+home: https://modamoda.com
+sources:
+  - https://github.com/modamoda/invisible-mannequin
+
+maintainers:
+  - name: Modamoda Team
+    email: team@modamoda.com
+
+dependencies:
+  - name: postgresql
+    version: "12.1.6"
+    repository: "https://charts.bitnami.com/bitnami"
+    condition: postgresql.enabled
+  - name: redis
+    version: "17.3.17"
+    repository: "https://charts.bitnami.com/bitnami"
+    condition: redis.enabled
+  - name: minio
+    version: "12.1.4"
+    repository: "https://charts.bitnami.com/bitnami"
+    condition: minio.enabled
+  - name: prometheus
+    version: "19.0.0"
+    repository: "https://prometheus-community.github.io/helm-charts"
+    condition: monitoring.prometheus.enabled
+  - name: grafana
+    version: "6.50.0"
+    repository: "https://grafana.github.io/helm-charts"
+    condition: monitoring.grafana.enabled
+  - name: opentelemetry-collector
+    version: "0.48.0"
+    repository: "https://open-telemetry.github.io/opentelemetry-helm-charts"
+    condition: monitoring.enabled

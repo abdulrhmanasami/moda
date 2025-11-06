@@ -11,7 +11,22 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test": "python -m pytest tests/ -v --tb=short",
+    "test:unit": "python -m pytest tests/unit/ -v",
+    "test:integration": "python -m pytest tests/integration/ -v",
+    "test:e2e": "python -m pytest tests/e2e/ -v",
+    "test:coverage": "python -m pytest tests/ --cov=src --cov-report=html --cov-report=term",
+    "test:frontend": "cd src/frontend && npm test",
+    "security:audit": "python scripts/devops/security/security_ops.py audit",
+    "security:report": "python scripts/devops/security/security_ops.py report",
+    "security:monitor": "python scripts/devops/security/security_ops.py monitor",
+    "keys:generate": "python scripts/devops/keys/key_manager.py generate",
+    "env:rotate": "./scripts/devops/security/env_manager.sh rotate",
+    "infra:check": "./scripts/infrastructure/deploy.sh check",
+    "infra:plan": "./scripts/infrastructure/deploy.sh plan",
+    "infra:deploy": "./scripts/infrastructure/deploy.sh deploy",
+    "infra:destroy": "./scripts/infrastructure/deploy.sh destroy"
   },
   "dependencies": {
     "next": "^14.0.0",

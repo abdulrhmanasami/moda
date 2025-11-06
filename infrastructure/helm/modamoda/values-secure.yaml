@@ -1,0 +1,85 @@
+replicaCount: 3
+
+resources:
+  requests: { cpu: "200m", memory: "256Mi" }
+  limits:   { cpu: "1",    memory: "1Gi" }
+
+securityContext:
+  runAsNonRoot: true
+  readOnlyRootFilesystem: true
+
+containerSecurityContext:
+  allowPrivilegeEscalation: false
+  capabilities: { drop: ["ALL"] }
+
+livenessProbe:
+  httpGet: { path: /health, port: http }
+  initialDelaySeconds: 20
+  periodSeconds: 10
+
+readinessProbe:
+  httpGet: { path: /ready, port: http }
+  initialDelaySeconds: 10
+  periodSeconds: 5
+
+podDisruptionBudget:
+  minAvailable: 2
+
+serviceAccount:
+  create: true
+  annotations:
+    eks.amazonaws.com/role-arn: arn:aws:iam::<ACCOUNT_ID>:role/modamoda-irsa
+
+networkPolicy:
+  enabled: true
+  ingress:
+    - fromNamespaces: ["ingress-nginx"]
+      ports: [80, 443]
+  egress:
+    - toCIDRs: ["0.0.0.0/0"]
+      ports: [443]
+
+# === Hardened addenda (STEP3) ===
+networkPolicy:
+  enabled: true
+  ingressNamespace: "ingress-nginx"   # عدّلها حسب اسم NS عندك
+  egressCIDR: "0.0.0.0/0"            # TLS فقط
+limitRange:
+  enabled: true
+  requests: { cpu: "200m", memory: "256Mi" }
+  default:  { cpu: "500m", memory: "512Mi" }
+resourceQuota:
+  enabled: true
+  hard:
+    requestsCpu: "2"
+    requestsMemory: "4Gi"
+    limitsCpu: "4"
+    limitsMemory: "8Gi"
+    pods: "10"
+namespaceLabels:
+  enabled: false   # فعلها فقط إذا الـChart هو اللي بيخلق الـNS
+monitoring:
+  serviceMonitor:
+    enabled: true
+    release: "prom"
+    interval: "30s"
+  alerts:
+    enabled: true
+    # النسبة المطلوبة لحساب p-quantile (0.95 = p95)
+    latencyP95: 0.95
+    # الحد الأعلى المسموح للـ p95 latency بالثواني
+    latencyP95ThresholdSeconds: 0.5
+    # الحد الأعلى لمعدل أخطاء 5xx (مثلاً 1% = 0.01)
+    errorRateThreshold: 0.01
+    # مدة الاستمرار قبل إطلاق التنبيه
+    for: 5m
+
+env:
+  OBS_ENABLE_METRICS: "true"
+  OTEL_EXPORTER_OTLP_ENDPOINT: ""      # مثال: "http://otel-collector:4317"
+  OTEL_SERVICE_NAME: "modamoda-api"
+  OTEL_SERVICE_NAMESPACE: "modamoda"
+  OTEL_SERVICE_VERSION: "1.0.0-rc1"
+
+opentelemetry-collector:
+  mode: deployment

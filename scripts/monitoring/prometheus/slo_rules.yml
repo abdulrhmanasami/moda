@@ -1,0 +1,91 @@
+# @Study:ST-012 @Study:ST-019
+# SLO Rules for MODA based on governance/slo/slo.yaml
+
+groups:
+  - name: modamoda_slo_rules
+    rules:
+      # API Latency P95 SLO (150ms target)
+      - record: slo:api_latency_p95_ratio
+        expr: |
+          rate(http_request_duration_seconds{quantile="0.95", method="POST", endpoint="/api/v1/try-on"}[5m])
+          /
+          0.15  # 150ms target
+
+      - alert: SLOApiLatencyP95Breached
+        expr: slo:api_latency_p95_ratio > 1
+        for: 5m
+        labels:
+          severity: warning
+          slo: api_latency_p95
+        annotations:
+          summary: "API P95 latency SLO breached"
+          description: "P95 latency for /api/v1/try-on exceeded 150ms for 5 minutes"
+          value: "{{ $value }}"
+
+      # Availability SLO (99.9% target = 0.1% error rate)
+      - record: slo:availability_error_ratio
+        expr: |
+          rate(http_requests_total{status_code=~"5.."}[5m])
+          /
+          rate(http_requests_total[5m])
+          * 100
+
+      - alert: SLOAvailabilityBreached
+        expr: slo:availability_error_ratio > 0.1
+        for: 10m
+        labels:
+          severity: critical
+          slo: availability
+        annotations:
+          summary: "Availability SLO breached"
+          description: "Error rate exceeded 0.1% (99.9% availability target) for 10 minutes"
+          value: "{{ $value }}%"
+
+      # Image Accuracy SLO (99.5% target)
+      - record: slo:image_accuracy_ratio
+        expr: image_accuracy_score / 99.5
+
+      - alert: SLOImageAccuracyBreached
+        expr: slo:image_accuracy_ratio < 1
+        for: 15m
+        labels:
+          severity: warning
+          slo: image_accuracy
+        annotations:
+          summary: "Image accuracy SLO breached"
+          description: "Image accuracy dropped below 99.5% for 15 minutes"
+          value: "{{ $value }}%"
+
+      # Error Rate monitoring (complementary to availability)
+      - record: error_rate_5xx
+        expr: |
+          rate(http_requests_total{status_code=~"5.."}[5m])
+          * 100
+
+      # GPU Cost monitoring (if available)
+      - record: gpu_cost_per_request
+        expr: |
+          rate(gpu_utilization_cost[5m])
+          /
+          rate(http_requests_total{method="POST", endpoint="/api/v1/try-on"}[5m])
+
+      # Active connections monitoring
+      - alert: HighActiveConnections
+        expr: active_connections > 100
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High number of active connections"
+          description: "Active connections exceeded 100 for 2 minutes"
+          value: "{{ $value }}"
+
+      # Memory usage monitoring
+      - alert: HighMemoryUsage
+        expr: (1 - rate(process_resident_memory_bytes[5m]) / process_resident_memory_bytes) * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage detected"
+          description: "Memory usage exceeded 85% for 5 minutes"

@@ -4,16 +4,16 @@
 Basic health check tests for Modamoda API
 """
 
-import pytest
-from fastapi.testclient import TestClient
 
 # Note: This is a placeholder test
 # In a real implementation, you would import your FastAPI app
 # from src.backend.main import app
 
+
 def test_placeholder():
     """Placeholder test to ensure test framework works"""
     assert True
+
 
 # TODO: Add real tests when FastAPI app is properly configured
 # def test_root_endpoint(client: TestClient):

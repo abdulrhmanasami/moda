@@ -1,0 +1,44 @@
+rule_files:
+  - rules.yml
+
+evaluation_interval: 1m
+
+tests:
+
+- interval: 1m
+
+  input_series:
+
+    # إجمالي الطلبات
+
+    - series: 'http_requests_total{job="modamoda-api",code="200"}'
+
+      values: '0+100x15'   # كل دقيقة +100
+
+    # 5xx
+
+    - series: 'http_requests_total{job="modamoda-api",code="500"}'
+
+      values: '0+3x15'     # حوالي 3%→ لازم يفاير فوق 2%
+
+
+
+  alert_rule_test:
+
+    - alertname: SLOErrorRateHigh
+
+      eval_time: 12m
+
+      exp_alerts:
+
+        - exp_labels:
+
+            severity: "warning"
+
+            service: "modamoda-api"
+
+            job: "modamoda-api"
+
+          exp_annotations:
+
+            summary: "5xx error rate > 2% for 10m"
