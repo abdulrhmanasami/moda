@@ -1,0 +1,41 @@
+name: PR Size Labeler
+
+on:
+
+  pull_request:
+
+    types: [opened, synchronize, reopened, edited]
+
+permissions:
+
+  contents: read
+
+  pull-requests: write
+
+jobs:
+
+  size:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - uses: pascalgn/size-label-action@v0.5.3
+
+        env:
+
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+          # تجاهل لوك فايلات
+
+          IGNORED: "package-lock.json yarn.lock pnpm-lock.yaml"
+
+          # العتبات (إجمالي الأسطر المضافة+المحذوفة)
+
+          S: "0"
+
+          M: "50"
+
+          L: "200"
+
+          XL: "500"
