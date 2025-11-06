@@ -1,17 +1,22 @@
-{{- if .Values.monitoring.serviceMonitor.enabled }}
+{{- if (default false (dig "monitoring" "serviceMonitor" "enabled" .Values)) }}
+
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
   name: {{ include "modamoda.fullname" . }}
   labels:
-    {{- include "modamoda.labels" . | nindent 4 }}
-    release: {{ .Values.monitoring.serviceMonitor.release | default "prom" }}
+    app.kubernetes.io/name: {{ include "modamoda.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    {{- with (dig "monitoring" "serviceMonitor" "labels" .Values) }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
 spec:
-  selector:
-    matchLabels:
-      {{- include "modamoda.selectorLabels" . | nindent 6 }}
   endpoints:
     - port: http
       path: /metrics
-      interval: {{ .Values.monitoring.serviceMonitor.interval | default "30s" }}
+      interval: {{ (dig "monitoring" "serviceMonitor" "interval" .Values) | default "30s" }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "modamoda.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
