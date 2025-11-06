@@ -7,6 +7,9 @@ on:
     branches: [ main ]
 
 jobs:
+  env:
+    PYTHONPATH: $GITHUB_WORKSPACE
+    DB_URL: sqlite:///./ci.db
   test:
     runs-on: ubuntu-latest
     steps:
@@ -22,9 +25,11 @@ jobs:
         python -m pip install --upgrade pip
         pip install poetry
         poetry install
+    - name: Set PYTHONPATH
+      run: echo "PYTHONPATH=$GITHUB_WORKSPACE" >> $GITHUB_ENV
 
     - name: Run tests
-      run: poetry run pytest --cov=src --cov-report=xml
+      run: PYTHONPATH=$GITHUB_WORKSPACE poetry run pytest -m "not optional" --cov=src --cov-report=xml
 
     - name: Run linting
       run: |

@@ -1,0 +1,37 @@
+# @Study:ST-012 @Study:ST-019
+# Prometheus configuration for MODA SLO monitoring
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+rule_files:
+  - "slo_rules.yml"
+
+scrape_configs:
+  - job_name: 'modamoda-backend'
+    static_configs:
+      - targets: ['modamoda-backend:8000']
+    metrics_path: '/metrics'
+    scrape_interval: 10s
+
+  - job_name: 'modamoda-frontend'
+    static_configs:
+      - targets: ['modamoda-frontend:3000']
+    scrape_interval: 30s
+
+  - job_name: 'kubernetes-pods'
+    kubernetes_sd_configs:
+      - role: pod
+    relabel_configs:
+      - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+        action: keep
+        regex: true
+      - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+        action: replace
+        target_label: __metrics_path__
+        regex: (.+)
+      - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_port]
+        action: replace
+        target_label: __address__
+        regex: ([^:]+)(?::\d+)?
+        replacement: $1:$2

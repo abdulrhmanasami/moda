@@ -8,41 +8,187 @@ on:
   workflow_dispatch:
 
 jobs:
-  checks:
+  promql_check:
+    name: Prometheus rules check
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      - name: Install helm
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install Python deps (CI)
+        run: pip install -r requirements/ci.txt
+      - name: Set PYTHONPATH
+        run: echo "PYTHONPATH=$GITHUB_WORKSPACE" >> $GITHUB_ENV
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.14.4
+      - name: Build Helm dependencies
+        run: helm dependency build infrastructure/helm/modamoda
+      - name: Download promtool
         run: |
-          curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+          VER=2.53.1
+          curl -sSL -o /tmp/prom.tgz https://github.com/prometheus/prometheus/releases/download/v${VER}/prometheus-${VER}.linux-amd64.tar.gz
+          tar -xzf /tmp/prom.tgz -C /tmp
+          sudo mv /tmp/prometheus-${VER}.linux-amd64/promtool /usr/local/bin/promtool
+      - name: Render & extract rules
+        id: render
+        run: |
+          OUT=$(./tools/observability/render_rules.sh)
+          echo "rules=${OUT}" >> $GITHUB_OUTPUT
+      - name: promtool check rules
+        run: |
+          promtool check rules "${{ steps.render.outputs.rules }}"
+
+  promql_tests:
+    name: PromQL SLO Tests
+    runs-on: ubuntu-latest
+    needs: promql_check
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install Python deps (CI)
+        run: pip install -r requirements/ci.txt
+      - name: Set PYTHONPATH
+        run: echo "PYTHONPATH=$GITHUB_WORKSPACE" >> $GITHUB_ENV
+      - name: Download promtool
+        run: |
+          VER=2.53.1
+          curl -sSL -o /tmp/prom.tgz https://github.com/prometheus/prometheus/releases/download/v${VER}/prometheus-${VER}.linux-amd64.tar.gz
+          tar -xzf /tmp/prom.tgz -C /tmp
+          sudo mv /tmp/prometheus-${VER}.linux-amd64/promtool /usr/local/bin/promtool
+      - name: Run PromQL SLO Tests
+        run: |
+          ./tools/observability/run_promql_tests.sh
+
+  helm_validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: azure/setup-helm@v4
       - name: Install kubeconform
         run: |
-          curl -L https://github.com/yannh/kubeconform/releases/download/v0.6.6/kubeconform-linux-amd64.tar.gz \
-          | tar xz && sudo mv kubeconform /usr/local/bin/ && rm -f kubeconform-linux-amd64.tar.gz
+          curl -fsSL https://github.com/yannh/kubeconform/releases/download/v0.6.6/kubeconform-linux-amd64.tar.gz -o /tmp/kc.tgz
+          tar -xzf /tmp/kc.tgz -C /tmp
+          sudo mv /tmp/kubeconform /usr/local/bin/kubeconform
       - name: Install kube-linter
         run: |
-          curl -L https://github.com/stackrox/kube-linter/releases/download/v0.6.6/kube-linter-linux.tar.gz \
-          | tar xz && sudo mv kube-linter /usr/local/bin/ && rm -f kube-linter-linux.tar.gz
-      - name: Install promtool
+          curl -fsSL https://github.com/stackrox/kube-linter/releases/download/v0.6.6/kube-linter-linux.tar.gz -o /tmp/kl.tgz
+          tar -xzf /tmp/kl.tgz -C /tmp
+          sudo mv /tmp/kube-linter /usr/local/bin/kube-linter
+      - name: Helm lint
+        run: helm lint -f infrastructure/helm/modamoda/values-secure.yaml infrastructure/helm/modamoda
+      - name: Render manifests
+        run: helm template modamoda infrastructure/helm/modamoda -f infrastructure/helm/modamoda/values-secure.yaml > .manifest.yaml
+      - name: kubeconform
+        run: kubeconform -summary -strict .manifest.yaml
+      - name: kube-linter
         run: |
-          curl -L https://github.com/prometheus/prometheus/releases/download/v2.53.1/prometheus-2.53.1.linux-amd64.tar.gz \
-          | tar xz && sudo mv prometheus-2.53.1.linux-amd64/promtool /usr/local/bin/ && rm -rf prometheus-2.53.1.linux-amd64
-      - name: Make scripts executable
-        run: chmod +x tools/observability/*.sh || true
+          kube-linter analyze .manifest.yaml \
+            --include privilege-escalation-container \
+            --include required-labels \
+            --include minimum-replica-count \
+            --include drop-net-raw-capability \
+            --include no-read-only-root-fs-disabled
 
-      - name: Hygiene
-        run: tools/hygiene/repo_hygiene.sh
-      
+  obs_smoke:
+    runs-on: ubuntu-latest
+    needs: [helm_validate, tfsec, checks, studies_lock]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install deps (runtime only)
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install uvicorn prometheus-client
+      - name: Launch API (background)
+        env:
+          OBS_ENABLE_METRICS: "true"
+        run: |
+          nohup python -m uvicorn src.backend.main:app --host 0.0.0.0 --port 8000 >/dev/null 2>&1 &
+          for i in {1..30}; do curl -sf http://127.0.0.1:8000/health && break || sleep 1; done
+      - name: Smoke /metrics
+        run: |
+          python -m uvicorn src.backend.main:app --host 0.0.0.0 --port 8000 &
+          sleep 2
+          curl -fsS http://127.0.0.1:8000/health
+          # افشل لو 404
+          code=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:8000/metrics)
+          test "$code" = "200"
+
+  studies_lock:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate studies registry
+        run: |
+          python3 tools/governance_toolkit/core/validate_registry.py
+      - name: Enforce RFC on canonical changes
+        run: |
+          CHANGED=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | tr "\n" " ")
+          if echo "$CHANGED" | grep -q "governance/studies/registry.json"; then
+            MSG=$(jq -r .pull_request.title < $GITHUB_EVENT_PATH)
+            echo "PR title: $MSG"
+            echo "$MSG" | egrep -q "RFC-[0-9]{3,}" || (echo 'Missing RFC in title (RFC-###) for registry change' && exit 1)
+          fi
+        shell: bash
+
       - name: Governance Monitor
-        run: python3 tools/governance/governance_monitor.py
+        run: python3 tools/governance_toolkit/governance_monitor.py
       
       - name: Coverage Gate
-        env: { COVERAGE_THRESHOLD: "0.80" }
+        env: { COVERAGE_THRESHOLD: "0.95" }
+      
+      - name: Coverage Gate
+        env: { COVERAGE_THRESHOLD: "0.95" }
         run: tools/quality/coverage_gate.sh
       
       - name: Compliance
+<<<<<<< HEAD
         run: python3 tools/compliance/compliance_checker.py
+=======
+        run: python3 scripts/compliance_checker.py
+
+      - name: PyTest (unit+critical)
+        run: |
+          python3 -m pip install --break-system-packages pytest-cov httpx prometheus_client opentelemetry-sdk opentelemetry-instrumentation-fastapi opentelemetry-exporter-otlp-proto-grpc
+          python3 -m pytest -q --maxfail=1 --disable-warnings --cov=src --cov=scripts --cov-report=term --cov-report=xml tests/critical/
+
+      - name: Package Coverage Gate
+        run: python3 tools/quality/coverage_packages_gate.py
+
+      - name: PR Study Enforcer
+        env:
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+          GITHUB_EVENT_PATH: ${{ github.event_path }}
+        run: tools/governance/pr_study_enforcer.sh
+
+      - name: Fast Tests
+        run: |
+          echo "🚀 Running Fast Test Suite..."
+          npm run test:unit
+          npm run test:integration
+          echo "✅ Fast tests completed successfully"
+
+      - name: Infrastructure Validation
+        run: |
+          echo "🏗️ Validating Infrastructure as Code..."
+          cd infrastructure/terraform
+          terraform init -backend=false
+          terraform validate
+          echo "✅ Infrastructure validation passed"
+
+      - name: Helm Chart Validation
+        run: |
+          echo "⚓ Validating Helm Charts..."
+          helm template -f infrastructure/helm/modamoda/values-secure.yaml test infrastructure/helm/modamoda --dry-run
+          echo "✅ Helm charts validation passed"
+>>>>>>> obs/fix-metrics-404
 
       - name: Generate PR Comment
         if: github.event_name == 'pull_request'
@@ -175,3 +321,14 @@ jobs:
                  --data "$PAYLOAD" \
                  ${{ secrets.SLACK_WEBHOOK }}
           fi
+
+  tfsec:
+    name: tfsec
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aquasecurity/tfsec-action@v1.0.3
+        with:
+          working_directory: infrastructure/terraform
+          additional_args: --minimum-severity HIGH

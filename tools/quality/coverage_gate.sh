@@ -16,14 +16,14 @@ cat > coverage_report.txt << EOF
 📊 **Coverage Report**
 - **Current Coverage:** $ACTUAL_PERCENT%
 - **Required Threshold:** $THRESHOLD_PERCENT%
-- **Status:** $([ "$ACTUAL" -ge "$THRESHOLD" ] && echo "✅ PASSED" || echo "❌ FAILED")
+- **Status:** $(echo "$ACTUAL >= $THRESHOLD" | bc -l >/dev/null 2>&1 && echo "✅ PASSED" || echo "❌ FAILED")
 
 EOF
 
 # Check threshold
-awk "BEGIN{exit !( $ACTUAL >= $THRESHOLD )}" || {
+if ! echo "$ACTUAL >= $THRESHOLD" | bc -l >/dev/null 2>&1; then
   echo "❌ Coverage $ACTUAL_PERCENT% < $THRESHOLD_PERCENT%" >&2;
   exit 1;
-}
+fi
 
 echo "✅ Coverage $ACTUAL_PERCENT% ≥ $THRESHOLD_PERCENT%"

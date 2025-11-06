@@ -1,0 +1,376 @@
+# @Study:ST-012 @Study:ST-019
+# Default values for Modamoda Helm chart
+
+# Global configuration
+global:
+  imageRegistry: ""
+  imagePullSecrets: []
+  storageClass: ""
+
+  # Domain configuration
+  domain: modamoda.local
+
+  # Environment
+  environment: development
+
+# Application configuration
+app:
+  image:
+    repository: modamoda/backend
+    tag: "latest"
+    pullPolicy: IfNotPresent
+
+  replicaCount: 2
+
+  port: 8000
+
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 2Gi
+    requests:
+      cpu: 500m
+      memory: 1Gi
+
+  nodeSelector: {}
+
+  tolerations: []
+
+  affinity: {}
+
+  # Environment variables
+  env:
+    - name: ENVIRONMENT
+      value: "{{ .Values.global.environment }}"
+    - name: API_V1_STR
+      value: "/api/v1"
+    - name: PROJECT_NAME
+      value: "Modamoda Invisible Mannequin"
+
+  # Secrets (external)
+  secrets:
+    databaseUrl: ""
+    redisUrl: ""
+    secretKey: ""
+    jwtSecretKey: ""
+    openaiApiKey: ""
+
+# Frontend configuration
+frontend:
+  enabled: true
+
+  image:
+    repository: modamoda/frontend
+    tag: "latest"
+    pullPolicy: IfNotPresent
+
+  replicaCount: 2
+
+  port: 3000
+
+  resources:
+    limits:
+      cpu: 500m
+      memory: 1Gi
+    requests:
+      cpu: 250m
+      memory: 512Mi
+
+  nodeSelector: {}
+
+  tolerations: []
+
+  affinity: {}
+
+# PostgreSQL configuration
+postgresql:
+  enabled: true
+
+  auth:
+    postgresPassword: "modamoda_pass_2025_secure"
+    username: "modamoda_user"
+    password: "modamoda_pass_2025_secure"
+    database: "modamoda_dev"
+
+  architecture: standalone
+
+  primary:
+    persistence:
+      enabled: true
+      size: 20Gi
+
+    resources:
+      limits:
+        cpu: 1000m
+        memory: 2Gi
+      requests:
+        cpu: 500m
+        memory: 1Gi
+
+# Redis configuration
+redis:
+  enabled: true
+
+  auth:
+    enabled: false
+
+  architecture: standalone
+
+  master:
+    persistence:
+      enabled: true
+      size: 10Gi
+
+    resources:
+      limits:
+        cpu: 500m
+        memory: 1Gi
+      requests:
+        cpu: 250m
+        memory: 512Mi
+
+# MinIO configuration
+minio:
+  enabled: true
+
+  auth:
+    rootUser: "modamoda_access_key"
+    rootPassword: "modamoda_secret_key_2025_secure"
+
+  defaultBuckets: "modamoda-storage"
+
+  persistence:
+    enabled: true
+    size: 50Gi
+
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 2Gi
+    requests:
+      cpu: 500m
+      memory: 1Gi
+
+# Ingress configuration
+ingress:
+  enabled: true
+
+  className: "nginx"
+
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+
+  hosts:
+    - host: "{{ .Values.global.domain }}"
+      paths:
+        - path: "/api"
+          pathType: Prefix
+          backend:
+            service:
+              name: "{{ include \"modamoda.fullname\" . }}-backend"
+              port:
+                number: 8000
+        - path: "/"
+          pathType: Prefix
+          backend:
+            service:
+              name: "{{ include \"modamoda.fullname\" . }}-frontend"
+              port:
+                number: 3000
+
+  tls:
+    - secretName: modamoda-tls
+      hosts:
+        - "{{ .Values.global.domain }}"
+
+# Service accounts
+  serviceAccount:
+  create: true
+  annotations:
+    eks.amazonaws.com/role-arn: ""  # To be filled with IRSA role ARN
+  name: "modamoda-backend-sa"
+
+# Pod Security Context
+podSecurityContext:
+  fsGroup: 65534
+
+# Security Context
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 65534
+  runAsGroup: 65534
+
+# Monitoring
+monitoring:
+  enabled: true
+
+  prometheus:
+    enabled: true
+    server:
+      configMapOverrideName: "modamoda-prometheus-config"
+      extraArgs:
+        config.file: /etc/config/prometheus.yml
+      persistentVolume:
+        enabled: true
+        size: 20Gi
+
+    serverFiles:
+      prometheus.yml: |
+        global:
+          scrape_interval: 15s
+          evaluation_interval: 15s
+
+        rule_files:
+          - "/etc/prometheus/slo_rules.yml"
+
+        scrape_configs:
+          - job_name: 'modamoda-backend'
+            static_configs:
+              - targets: ['modamoda-backend:8000']
+            metrics_path: '/metrics'
+            scrape_interval: 10s
+
+      slo_rules.yml: |
+        groups:
+          - name: modamoda_slo_rules
+            rules:
+              - record: slo:api_latency_p95_ratio
+                expr: |
+                  histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{method="POST", endpoint="/api/v1/try-on"}[5m])) / 0.15
+
+              - alert: SLOApiLatencyP95Breached
+                expr: slo:api_latency_p95_ratio > 1
+                for: 5m
+                labels:
+                  severity: warning
+                  slo: api_latency_p95
+                annotations:
+                  summary: "API P95 latency SLO breached"
+                  description: "P95 latency exceeded 150ms for 5 minutes"
+
+              - alert: SLOAvailabilityBreached
+                expr: (rate(http_requests_total{status_code=~"5.."}[5m]) / rate(http_requests_total[5m])) * 100 > 0.1
+                for: 10m
+                labels:
+                  severity: critical
+                  slo: availability
+                annotations:
+                  summary: "Availability SLO breached"
+                  description: "Error rate exceeded 0.1% for 10 minutes"
+
+              - alert: SLOImageAccuracyBreached
+                expr: image_accuracy_score < 99.5
+                for: 15m
+                labels:
+                  severity: warning
+                  slo: image_accuracy
+                annotations:
+                  summary: "Image accuracy SLO breached"
+                  description: "Accuracy dropped below 99.5% for 15 minutes"
+
+  grafana:
+    enabled: true
+    adminPassword: "modamoda_admin_2025_secure"
+    persistence:
+      enabled: true
+      size: 10Gi
+
+    dashboardProviders:
+      dashboardproviders.yaml:
+        apiVersion: 1
+        providers:
+        - name: 'moda'
+          orgId: 1
+          folder: ''
+          type: file
+          disableDeletion: false
+          updateIntervalSeconds: 10
+          allowUiUpdates: true
+          options:
+            path: /var/lib/grafana/dashboards/moda
+
+    dashboards:
+      moda:
+        slo-dashboard:
+          json: |
+            {
+              "dashboard": {
+                "title": "MODA SLO Dashboard",
+                "panels": [
+                  {
+                    "title": "API P95 Latency SLO",
+                    "type": "stat",
+                    "targets": [{"expr": "histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) * 1000"}],
+                    "fieldConfig": {"defaults": {"unit": "ms", "thresholds": {"steps": [{"value": 150, "color": "yellow"}]}}}
+                  }
+                ]
+              }
+            }
+
+  opentelemetry-collector:
+    enabled: true
+    mode: deployment
+    config:
+      receivers:
+        otlp:
+          protocols:
+            grpc:
+              endpoint: 0.0.0.0:4317
+            http:
+              endpoint: 0.0.0.0:4318
+      processors:
+        batch: {}
+        resource:
+          attributes:
+            - key: service.name
+              value: "modamoda-backend"
+              action: upsert
+      exporters:
+        logging:
+          loglevel: debug
+        jaeger:
+          endpoint: jaeger-all-in-one:14250
+          tls:
+            insecure: true
+      service:
+        pipelines:
+          traces:
+            receivers: [otlp]
+            processors: [batch, resource]
+            exporters: [logging, jaeger]
+
+  alerts:
+    enabled: true
+
+# Autoscaling
+autoscaling:
+  enabled: true
+
+  minReplicas: 2
+  maxReplicas: 10
+
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+
+# Horizontal Pod Autoscaler
+hpa:
+  enabled: true
+
+  minReplicas: 2
+  maxReplicas: 10
+
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80

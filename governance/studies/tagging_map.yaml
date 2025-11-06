@@ -46,9 +46,9 @@ patterns:
   # Scripts - Various studies based on purpose
   - glob: "scripts/compliance_checker.py"
     studies: ["ST-019"]
-  - glob: "scripts/governance_monitor.py"
+  - glob: "tools/governance_toolkit/governance_monitor.py"
     studies: ["ST-019"]
-  - glob: "scripts/governance_reporter.py"
+  - glob: "tools/governance_toolkit/governance_reporter.py"
     studies: ["ST-019"]
   - glob: "scripts/governance/**"
     studies: ["ST-019"]
