@@ -1,0 +1,14 @@
+title = "Modamoda Gitleaks Config"
+
+[allowlist]
+
+description = "Allow common non-secret test strings and fixtures"
+
+paths = [
+  '''^tests/fixtures/.*$''',
+  '''^examples/.*'''
+]
+
+regexes = [
+  '''(?i)dummy|sample|example|placeholder|testkey'''
+]
