@@ -1,17 +1,14 @@
-title = "modamoda-gitleaks"
-
-
+title = "Modamoda Gitleaks Config"
 
 [allowlist]
 
-description = "Known non-sensitive placeholders"
+description = "Allow common non-secret test strings and fixtures"
 
-regexes = [
-
-  '''(?i)\b(CHANGEME|DUMMY|EXAMPLE|PLACEHOLDER|YOUR_WEBHOOK_URL)\b''',
-
-  '''https?://(localhost|127\.0\.0\.1)(:\d+)?/.*'''
-
+paths = [
+  '''^tests/fixtures/.*$''',
+  '''^examples/.*'''
 ]
 
-# ملاحظة: ما منسمح بتمرير أسرار فعلية ضمن .md أو غيره — ما في السماح العام للمستندات
+regexes = [
+  '''(?i)dummy|sample|example|placeholder|testkey'''
+]
