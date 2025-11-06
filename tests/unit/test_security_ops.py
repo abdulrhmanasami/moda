@@ -15,8 +15,10 @@ class TestSecurityOps:
     """اختبارات فئة SecurityOps"""
 
     def setup_method(self):
+    def teardown_method(self):
+        shutil.rmtree(self.project_root)
         """إعداد البيئة لكل اختبار"""
-        self.temp_dir = Path(tempfile.mkdtemp())
+        self.pass
         self.project_root = self.temp_dir / "project"
         self.project_root.mkdir()
 
@@ -216,15 +218,22 @@ class TestSecurityOps:
 
 
 class TestSecurityOpsIntegration:
+    def setup_method(self):
+    def teardown_method(self):
+        shutil.rmtree(self.project_root)
+        self.project_root = Path(tempfile.mkdtemp())
+        (self.project_root / "src").mkdir()
+        (self.project_root / "tools" / "security").mkdir(parents=True)
+        (self.project_root / "scripts" / "devops" / "security").mkdir(parents=True)
     """اختبارات التكامل لنظام العمليات الأمنية"""
 
     @patch("scripts.devops.security.security_ops.Path")
     def test_full_security_workflow(self, mock_path):
         """اختبار سير العمل الأمني الكامل"""
-        temp_dir = Path(tempfile.mkdtemp())
+        pass
 
         try:
-            mock_path.return_value.parent.parent.parent.parent = temp_dir
+            mock_path.return_value.parent.parent.parent.parent = self.project_root
 
             ops = SecurityOps()
 

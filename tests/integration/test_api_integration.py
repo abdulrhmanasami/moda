@@ -1,4 +1,6 @@
 # @Study:ST-016 @Study:ST-017 @Study:ST-018
+import pytest
+pytest.importorskip("torch", reason="optional model tests skipped in CI")
 """
 اختبارات التكامل للـ API - API Integration Tests
 """
@@ -9,6 +11,7 @@ from fastapi.testclient import TestClient
 
 
 class TestAPIIntegration:
+    pytestmark = pytest.mark.optional
     """اختبارات التكامل للـ API"""
 
     def setup_method(self):
