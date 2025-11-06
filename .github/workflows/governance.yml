@@ -135,16 +135,22 @@ jobs:
   checks:
     runs-on: ubuntu-latest
     steps:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
       - uses: actions/checkout@v4
       
       - name: Hygiene
         run: tools/hygiene/repo_hygiene.sh
       
-    - name: Prepare log dir
-      run: mkdir -p logs
+      - name: Prepare log dir
+        run: mkdir -p logs
 
       - name: Governance Monitor
         run: python3 tools/governance_toolkit/governance_monitor.py
+      
+      - name: Coverage Gate
+        env: { COVERAGE_THRESHOLD: "0.95" }
       
       - name: Coverage Gate
         env: { COVERAGE_THRESHOLD: "0.95" }
