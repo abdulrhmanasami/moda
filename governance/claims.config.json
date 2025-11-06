@@ -73,6 +73,6 @@
       "evaluator": "repo_size_budget"
     }
   ],
-  "hard_fail_ids": ["BACKEND_FASTAPI", "DB_LAYER", "CI_GATES", "CLEAN_ROOT", "DOCMAP_SYNC", "REALITY_BACKEND_DB"],
-  "soft_fail_ids": ["FRONTEND_NEXTJS", "TEST_COUNT_MIN", "SEC_PLAYBOOK", "SIZE_BUDGET_MB"]
+  "hard_fail_ids": ["BACKEND_FASTAPI", "DB_LAYER", "CI_GATES", "CLEAN_ROOT", "REALITY_BACKEND_DB"],
+  "soft_fail_ids": ["FRONTEND_NEXTJS", "TEST_COUNT_MIN", "SEC_PLAYBOOK", "SIZE_BUDGET_MB", "DOCMAP_SYNC"]
 }
