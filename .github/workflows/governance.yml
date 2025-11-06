@@ -81,7 +81,7 @@ jobs:
           tar -xzf /tmp/kl.tgz -C /tmp
           sudo mv /tmp/kube-linter /usr/local/bin/kube-linter
       - name: Helm lint
-        run: helm lint infrastructure/helm/modamoda
+        run: helm lint -f infrastructure/helm/modamoda/values-secure.yaml infrastructure/helm/modamoda
       - name: Render manifests
         run: helm template modamoda infrastructure/helm/modamoda -f infrastructure/helm/modamoda/values-secure.yaml > .manifest.yaml
       - name: kubeconform
@@ -185,7 +185,7 @@ jobs:
       - name: Helm Chart Validation
         run: |
           echo "⚓ Validating Helm Charts..."
-          helm template test infrastructure/helm/modamoda --dry-run
+          helm template -f infrastructure/helm/modamoda/values-secure.yaml test infrastructure/helm/modamoda --dry-run
           echo "✅ Helm charts validation passed"
 
       - name: Generate PR Comment
