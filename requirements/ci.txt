@@ -20,3 +20,4 @@ fastapi>=0.115
 
 uvicorn>=0.30
 psycopg2-binary==2.9.9
+prometheus-fastapi-instrumentator==6.1.0

@@ -7,7 +7,7 @@ Main application entry point with OpenTelemetry monitoring
 
 import os
 import time
-from typing import Callable
+from typing import Callable, Optional
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from prometheus_client import (
@@ -18,6 +18,7 @@ from prometheus_client import (
     CONTENT_TYPE_LATEST,
     generate_latest,
 )
+from prometheus_fastapi_instrumentator import Instrumentator
 from starlette.responses import Response as StarletteResponse
 
 # -------- Observability (Prometheus) --------
@@ -112,47 +113,18 @@ app.add_middleware(
 )
 
 # -------- Prometheus Middleware --------
+# تأكيد كشف /metrics لما يكون OBS_ENABLE_METRICS=true
 if OBS_ENABLE_METRICS:
-
-    @app.middleware("http")
-    async def prometheus_middleware(request: Request, call_next: Callable):
-        start = time.perf_counter()
-        method = request.method
-        # Normalize path (optional): collapse ids → :id
-        path = (
-            request.scope.get("route").path
-            if request.scope.get("route")
-            else request.url.path
+    try:
+        Instrumentator().instrument(app).expose(
+            app,
+            endpoint="/metrics",
+            include_in_schema=False,
         )
-
-        # Track active connections
-        ACTIVE_CONNECTIONS.inc()
-
-        try:
-            response = await call_next(request)
-            dur = max(0.0, time.perf_counter() - start)
-            status_code = response.status_code
-
-            # Record metrics
-            REQUEST_COUNT.labels(
-                method=method, endpoint=path, status_code=status_code
-            ).inc()
-            REQUEST_LATENCY.labels(method=method, endpoint=path).observe(dur)
-
-            return response
-        except Exception as e:
-            # Record error metrics
-            dur = max(0.0, time.perf_counter() - start)
-            REQUEST_COUNT.labels(method=method, endpoint=path, status_code=500).inc()
-            REQUEST_LATENCY.labels(method=method, endpoint=path).observe(dur)
-            raise e
-        finally:
-            ACTIVE_CONNECTIONS.dec()
-
-    @app.get("/metrics")
-    async def metrics():
-        data = generate_latest(_registry)
-        return StarletteResponse(content=data, media_type=CONTENT_TYPE_LATEST)
+    except Exception as e:
+        # ما منكسّر السيرفر لو القياس تعطل
+        import logging
+        logging.getLogger("uvicorn.error").warning(f"metrics disabled: {e}")
 
 
 @app.get("/")

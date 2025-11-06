@@ -110,10 +110,14 @@ jobs:
         run: |
           nohup python -m uvicorn src.backend.main:app --host 0.0.0.0 --port 8000 >/dev/null 2>&1 &
           for i in {1..30}; do curl -sf http://127.0.0.1:8000/health && break || sleep 1; done
-      - name: Probe /health
-        run: curl -sf http://127.0.0.1:8000/health
-      - name: Probe /metrics
-        run: curl -sf http://127.0.0.1:8000/metrics | head -n 20
+      - name: Smoke /metrics
+        run: |
+          python -m uvicorn src.backend.main:app --host 0.0.0.0 --port 8000 &
+          sleep 2
+          curl -fsS http://127.0.0.1:8000/health
+          # افشل لو 404
+          code=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:8000/metrics)
+          test "$code" = "200"
 
   studies_lock:
     runs-on: ubuntu-latest
