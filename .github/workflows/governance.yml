@@ -132,19 +132,6 @@ jobs:
             echo "$MSG" | egrep -q "RFC-[0-9]{3,}" || (echo 'Missing RFC in title (RFC-###) for registry change' && exit 1)
           fi
         shell: bash
-  checks:
-    runs-on: ubuntu-latest
-    steps:
-  checks:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      
-      - name: Hygiene
-        run: tools/hygiene/repo_hygiene.sh
-      
-      - name: Prepare log dir
-        run: mkdir -p logs
 
       - name: Governance Monitor
         run: python3 tools/governance_toolkit/governance_monitor.py
