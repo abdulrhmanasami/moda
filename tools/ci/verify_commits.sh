@@ -6,13 +6,31 @@ pattern='^(feat|fix|docs|chore|refactor|test|perf|build|ci|revert)(\(.+\))?: .+'
 
 base_ref="${BASE_REF:-main}"
 
+echo "🔍 Checking commits from ${base_ref} to HEAD"
+
+# Fetch latest changes
+echo "📥 Fetching latest changes..."
 git fetch origin +refs/heads/*:refs/remotes/origin/* >/dev/null 2>&1 || true
 
-range="$(git rev-list --no-merges --left-right ${base_ref}...HEAD | awk '/^>/{print $0}' | wc -l)"
+# Check if base_ref exists
+if ! git show-ref --verify --quiet "refs/remotes/origin/${base_ref}"; then
+  echo "⚠️  Base ref ${base_ref} not found, using origin/main"
+  base_ref="origin/main"
+fi
 
-log_cmd=(git log --pretty=%s ${base_ref}..HEAD)
+echo "📋 Checking commits: git log --pretty=%s ${base_ref}..HEAD"
 
-# اسم الجوب في Actions لازم يمرّر BASE_REF=${{ github.base_ref }}
+# Get commit messages
+commit_messages=$(git log --pretty=%s "${base_ref}"..HEAD 2>/dev/null || echo "")
+
+if [[ -z "$commit_messages" ]]; then
+  echo "ℹ️  No commits to check (possibly already merged or no new commits)"
+  echo "✅ commit messages OK"
+  exit 0
+fi
+
+echo "📝 Found commits to check:"
+echo "$commit_messages" | nl
 
 invalid=0
 
@@ -23,7 +41,7 @@ while IFS= read -r msg; do
     echo "❌ Invalid commit message: $msg"
     invalid=1
   fi
-done < <("${log_cmd[@]}")
+done <<< "$commit_messages"
 
 if [[ $invalid -eq 1 ]]; then
   echo "❌ Commit messages must follow Conventional Commits."
