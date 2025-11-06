@@ -5,7 +5,7 @@ version = "0.1.0"
 description = "AI-powered fashion virtual try-on platform"
 authors = ["Modamoda Team <team@modamoda.com>"]
 readme = "README.md"
-packages = [{include = "src"}]
+packages = [{include = "src"}, {include = "scripts"}]
 
 [tool.poetry.dependencies]
 python = "^3.11"
