@@ -1,0 +1,40 @@
+name: Security - OSV Scanner
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: ["**"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  osv:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+
+      - name: Install OSV-Scanner
+        run: |
+          curl -L https://github.com/google/osv-scanner/releases/download/v2.2.4/osv-scanner_linux_amd64 -o osv-scanner
+          chmod +x osv-scanner
+          sudo mv osv-scanner /usr/local/bin/
+
+      - name: Run OSV-Scanner (repo)
+        run: |
+          mkdir -p reports
+          osv-scanner -r . --format sarif --output reports/osv.sarif || true
+
+      - name: Upload SARIF
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: reports/osv.sarif
+
+      - name: Soft-fail note
+        run: echo "OSV alerts تظهر في Code scanning. الفشل الصارم بنفعّله لاحقاً بعد استقرار البنية."

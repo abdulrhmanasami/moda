@@ -1,0 +1,75 @@
+name: Governance - Preflight Clean Release
+
+
+
+on:
+
+  pull_request:
+
+    branches: ["**"]
+
+  push:
+
+    branches: ["main"]
+
+  workflow_dispatch:
+
+
+
+permissions:
+
+  contents: read
+
+
+
+jobs:
+
+  preflight:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout
+
+        uses: actions/checkout@v4
+
+        with: { fetch-depth: 0 }
+
+
+
+      - name: Set up Python
+
+        uses: actions/setup-python@v5
+
+        with: { python-version: "3.11" }
+
+
+
+      - name: Run Doc Map Sync
+
+        run: |
+
+          python tools/governance/docmap_sync.py
+
+
+
+      - name: Run Clean Release Preflight
+
+        run: |
+
+          python tools/governance/preflight_clean_release.py
+
+
+
+      - name: Upload Reports (artifact)
+
+        if: always()
+
+        uses: actions/upload-artifact@v4
+
+        with:
+
+          name: governance-preflight-reports
+
+          path: reports/
