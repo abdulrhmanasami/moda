@@ -140,6 +140,9 @@ jobs:
       - name: Hygiene
         run: tools/hygiene/repo_hygiene.sh
       
+    - name: Prepare log dir
+      run: mkdir -p logs
+
       - name: Governance Monitor
         run: python3 tools/governance_toolkit/governance_monitor.py
       
