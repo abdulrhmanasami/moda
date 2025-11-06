@@ -1,0 +1,17 @@
+{
+  "hard_fail": {
+    "endpoints_min_delta": 0,
+    "tests_min_delta": 0,
+    "doc_missing_max": 0,
+    "doc_orphan_max": 0,
+    "root_illegal_files_max": 0,
+    "root_illegal_dirs_max": 0,
+    "forbidden_matches_max": 0,
+    "archives_outside_dist_max": 0
+  },
+  "soft_fail": {
+    "repo_size_mb_increase_max": 10.0,
+    "oversized_files_max": 0
+  },
+  "fail_on_unknown_language": true
+}
