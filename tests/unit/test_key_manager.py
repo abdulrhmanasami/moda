@@ -7,7 +7,7 @@ import tempfile
 import shutil
 from pathlib import Path
 from unittest.mock import patch
-from ..scripts.devops.keys.key_manager import KeyManager
+import sys; sys.path.append("."); from scripts.devops.keys.key_manager import KeyManager
 
 
 class TestKeyManager:
