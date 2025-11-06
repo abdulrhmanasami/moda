@@ -26,7 +26,33 @@ def extract_paths(md:str):
 
   code_links = re.findall(r"(studies\/[^\s)]+)", md)
 
-  return sorted(set([*links, *code_links]))
+  # يلتقط مسارات محددة للمجلدات الفرعية مع أسماء الملفات
+  # مثل: core_strategy/00_الملخص_التنفيذي_الشامل_المحسن.md
+
+  subfolder_patterns = [
+    r'core_strategy/([a-zA-Z0-9_\u0600-\u06FF\-]+\.md)',
+    r'technical_specs/([a-zA-Z0-9_\u0600-\u06FF\-]+\.md)',
+    r'business_analysis/([a-zA-Z0-9_\u0600-\u06FF\-]+\.md)',
+    r'implementation_phases/([a-zA-Z0-9_\u0600-\u06FF\-]+\.md)',
+    r'compliance_governance/([a-zA-Z0-9_\u0600-\u06FF\-]+\.md)',
+    r'master_studies/([a-zA-Z0-9_\u0600-\u06FF\-]+\.md)'
+  ]
+
+  subfolder_links = []
+  for pattern in subfolder_patterns:
+    matches = re.findall(pattern, md)
+    for match in matches:
+      # نحصل على اسم المجلد من النمط
+      folder = pattern.split('/')[0]
+      subfolder_links.append(f'studies/{folder}/{match}')
+
+  # نجمع جميع الروابط ونفلتر الغير صحيحة
+  all_links = set([*links, *code_links, *subfolder_links])
+
+  # نستثني الروابط غير الصحيحة مثل studies/** أو studies/*
+  filtered_links = [link for link in all_links if not link.endswith('/**') and not link.endswith('/*') and link.startswith('studies/')]
+
+  return sorted(filtered_links)
 
 
 

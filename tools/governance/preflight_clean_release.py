@@ -106,7 +106,9 @@ def main():
 
     elif item.is_dir():
 
-      if item.name not in allowed_root_dirs:
+      # نتجاهل المجلدات الخاصة مثل .git و reports (التي تُنشأ مؤقتاً)
+
+      if item.name not in allowed_root_dirs and item.name not in [".git", "reports"]:
 
         findings["root"]["illegal_dirs"].append(str(item.relative_to(ROOT)))
 
@@ -114,13 +116,31 @@ def main():
 
   # 2) عناصر ممنوعة (globs)
 
-  for pattern in cfg["forbidden_globs"]:
+  forbidden_matches_set = set()
 
-    for p in ROOT.rglob("*"):
+  for p in ROOT.rglob("*"):
 
-      if fnmatch.fnmatch(str(p), pattern):
+    if p.is_file():  # فقط الملفات، لا المجلدات
 
-        findings["forbidden_matches"].append(str(p.relative_to(ROOT)))
+      for pattern in cfg["forbidden_globs"]:
+
+        # استخدم pathlib.Path.match للمطابقة مع ** patterns
+
+        try:
+
+          if p.match(pattern):
+
+            forbidden_matches_set.add(str(p.relative_to(ROOT)))
+
+            break  # لا نحتاج للتحقق من النمط الآخر إذا طابق واحد
+
+        except ValueError:
+
+          # في حال كان النمط غير صالح لـ pathlib
+
+          continue
+
+  findings["forbidden_matches"] = sorted(list(forbidden_matches_set))
 
 
 
@@ -213,9 +233,7 @@ def main():
   # 7) الإخفاق
 
   if findings["root"]["illegal_files"] or findings["root"]["illegal_dirs"] or \
-
      findings["forbidden_matches"] or findings["oversized"] or \
-
      findings["archives_outside_dist"]:
 
     print("❌ Preflight failed. See reports/CLEAN_RELEASE_REPORT.*")
