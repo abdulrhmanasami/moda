@@ -1,0 +1,15 @@
+repos:
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.18.2
+    hooks:
+      - id: gitleaks
+        name: gitleaks (secrets scan)
+        args:
+          - detect
+          - --redact
+          - -c
+          - .gitleaks.toml
+          - --report-format
+          - sarif
+          - --report-path
+          - gitleaks-local.sarif

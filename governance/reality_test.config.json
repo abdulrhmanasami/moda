@@ -1,0 +1,9 @@
+{
+  "expect_frontend": true,
+  "expect_backend": true,
+  "expect_db": true,
+  "expect_tests": true,
+  "expect_ci_gates": ["gitleaks", "CodeQL / Analyze (javascript-typescript)", "CodeQL / Analyze (python)"],
+  "fail_on": ["missing_backend", "missing_db"],
+  "soft_fail_on": ["missing_frontend", "low_tests"]
+}
