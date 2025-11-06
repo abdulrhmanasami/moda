@@ -1,0 +1,16 @@
+{
+  "referenced_count": 9,
+  "actual_count": 13,
+  "missing": [
+    "studies/business_analysis/01_تحليل_السوق_والاستراتيجية_التنافسية_المحسن.md",
+    "studies/implementation_phases/mvp_professional_study.md"
+  ],
+  "orphan": [
+    "studies/MASTER_STUDIES_INDEX.md",
+    "studies/README.md",
+    "studies/master_studies/BUSINESS_ANALYSIS.md",
+    "studies/master_studies/Comprehensive Analysis of the \"Invisible Mannequin\" Project.md",
+    "studies/master_studies/DEVELOPMENT_ROADMAP.md",
+    "studies/master_studies/MODAMODA_INVISIBLE_MANNEQUIN_MASTER_STUDY.md"
+  ]
+}

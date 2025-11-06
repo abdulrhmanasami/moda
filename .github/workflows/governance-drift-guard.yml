@@ -1,0 +1,43 @@
+name: Governance - Drift Guard
+
+on:
+  pull_request:
+    branches: ["**"]
+  schedule:
+    - cron: "17 4 * * 1"   # أسبوعي
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  drift:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+
+      # نعيد توليد تقارير STEP-6/7 لضمان مقارنة حديثة
+      - name: Doc Map Sync
+        run: python tools/governance/docmap_sync.py
+
+      - name: Preflight Clean Release
+        run: python tools/governance/preflight_clean_release.py
+
+      - name: Reality Test
+        run: python tools/governance/reality_test.py
+
+      - name: Drift Guard
+        run: python tools/governance/drift_guard.py
+
+      - name: Upload Drift Reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: governance-drift-guard
+          path: reports/

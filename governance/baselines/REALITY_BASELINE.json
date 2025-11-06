@@ -1,0 +1,26 @@
+{
+  "snapshot": {
+    "langs_files": {
+      "py": 43,
+      "ts": 0,
+      "js": 1,
+      "dart": 0
+    },
+    "frontend": false,
+    "backend": true,
+    "db": true,
+    "tests_count": 13,
+    "endpoints_count": 12,
+    "ci_gates_found": [
+      "CodeQL / Analyze (javascript-typescript)",
+      "CodeQL / Analyze (python)",
+      "gitleaks"
+    ]
+  },
+  "issues": [
+    [
+      "missing_frontend",
+      "Frontend not detected (Next.js)."
+    ]
+  ]
+}
