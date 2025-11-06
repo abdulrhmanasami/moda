@@ -1,0 +1,41 @@
+name: Governance - Claims Evidence
+
+on:
+  pull_request:
+    branches: ["**"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  claims:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+
+      # نضمن توليد التقارير المعتمدة كدلائل (DocMap/Preflight/Reality)
+      - name: Run Doc Map Sync
+        run: python tools/governance/docmap_sync.py
+
+      - name: Run Clean Release Preflight
+        run: python tools/governance/preflight_clean_release.py
+
+      - name: Run Reality Test
+        run: python tools/governance/reality_test.py
+
+      - name: Claims ↔ Evidence
+        run: python tools/governance/claims_evidence.py
+
+      - name: Upload Governance Artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: governance-claims-evidence
+          path: reports/
