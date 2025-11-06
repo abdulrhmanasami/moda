@@ -1,0 +1,13 @@
+{
+  "root": {
+    "illegal_files": [],
+    "illegal_dirs": []
+  },
+  "forbidden_matches": [],
+  "oversized": [],
+  "archives_outside_dist": [],
+  "summary": {
+    "total_files": 1113,
+    "total_megabytes": 3.248
+  }
+}
