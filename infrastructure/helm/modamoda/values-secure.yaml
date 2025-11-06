@@ -80,3 +80,6 @@ env:
   OTEL_SERVICE_NAME: "modamoda-api"
   OTEL_SERVICE_NAMESPACE: "modamoda"
   OTEL_SERVICE_VERSION: "1.0.0-rc1"
+
+opentelemetry-collector:
+  mode: deployment
