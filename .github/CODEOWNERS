@@ -1,35 +1,4 @@
-# دراسات وحوكمة
-
-/governance/                   @org/QualityCommittee @org/RiskCommittee @org/TechnologyCommittee
-
-/tools/governance/             @org/TechnologyCommittee
-
-/tools/compliance/             @org/LegalTeam @org/QualityCommittee
-
-/tools/hygiene/                @org/QualityCommittee
-
-
-
-# مجالات تقنية
-
-/ml/                           @org/TechnologyCommittee
-
-/security/                     @org/RiskCommittee
-
-/infra/                        @org/TechnologyCommittee
-
-/api/                          @org/TechnologyCommittee
-
-/frontend/                     @org/TechnologyCommittee
-
-/data/                         @org/TechnologyCommittee @org/LegalTeam
-
-/ops/                          @org/RiskCommittee @org/FinanceCommittee
-
-/finance/                      @org/FinanceCommittee
-
-
-
-# الافتراضي (أي ملف غير محدد أعلاه)
-
-*                              @org/QualityCommittee
+*               @abdulrhmanasami
+/governance/**  @abdulrhmanasami
+/tools/**       @abdulrhmanasami
+/infrastructure/** @abdulrhmanasami
