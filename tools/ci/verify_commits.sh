@@ -4,7 +4,7 @@ set -euo pipefail
 
 pattern='^(feat|fix|docs|chore|refactor|test|perf|build|ci|revert)(\(.+\))?: .+'
 
-base_ref="${BASE_REF:-origin/main}"
+base_ref="${BASE_REF:-main}"
 
 git fetch origin +refs/heads/*:refs/remotes/origin/* >/dev/null 2>&1 || true
 
