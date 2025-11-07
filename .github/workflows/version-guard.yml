@@ -1,0 +1,19 @@
+name: Version Guard
+
+on:
+
+  pull_request:
+
+  push:
+
+jobs:
+
+  check:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - uses: actions/checkout@v4
+
+      - run: tools/governance/version_check.sh
