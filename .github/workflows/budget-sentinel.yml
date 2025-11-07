@@ -1,0 +1,40 @@
+name: Budget Sentinel
+
+on:
+  pull_request:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+  schedule:
+    - cron: "0 6 * * *"  # يومياً 06:00 UTC
+
+jobs:
+  budget:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # اختياري: ضخ سنابشوت من Secrets (JSON) بدون تخزينه بالريبو
+      - name: Write cost snapshot from secret (optional)
+        if: env.BUDGET_SNAPSHOT_JSON != ''
+        run: |
+          mkdir -p reports/finance
+          printf '%s' "$BUDGET_SNAPSHOT_JSON" > reports/finance/costs.json
+        env:
+          BUDGET_SNAPSHOT_JSON: ${{ secrets.BUDGET_SNAPSHOT_JSON }}
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Run Budget Sentinel
+        run: python tools/governance/budget_sentinel.py
+
+      - name: Upload Budget Sentinel Reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: budget-sentinel-reports
+          path: |
+            reports/BUDGET_SENTINEL.json
+            reports/BUDGET_SENTINEL.md
