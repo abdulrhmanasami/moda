@@ -1,0 +1,19 @@
+{
+  "env": "ci",
+  "budgets": {
+    "gpu_monthly_usd_max": 0,
+    "api_monthly_usd_max": 0
+  },
+  "slos": {
+    "success_rate_min_pct": 99.0,
+    "error_rate_max_pct": 1.0,
+    "p95_latency_ms_max": 500,
+    "p99_latency_ms_max": 1200,
+    "min_rps_ci": 20
+  },
+  "routes": {
+    "include_patterns": ["/", "/health", "/status", "/docs"]
+  },
+  "hard_fail": ["error_rate", "p95_latency", "p99_latency", "success_rate"],
+  "soft_fail": ["rps_ci", "costs"]
+}
