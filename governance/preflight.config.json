@@ -1,0 +1,12 @@
+{
+  "allowed_root": ["README.md","LICENSE",".github/","governance/","studies/","tools/","src/","reports/","SECURITY/","infrastructure/"],
+  "forbidden_root": ["/coverage.xml","/gitleaks-local.sarif","/coverage_report.txt","*.zip","*.tar","*.tar.gz"],
+  "allowed_root_files": [".editorconfig", ".gitattributes", ".gitignore", ".flake8", ".pre-commit-config.yaml", ".gitleaks.toml", ".coverage", ".env.example", "README.md", "LICENSE", "CHANGELOG.md", "CONTRIBUTING.md", "package.json", "pyproject.toml", "docker-compose.yml", "Dockerfile", "coverage_report.txt", "coverage.xml", "licenses-node.json", "gitleaks-local.sarif", "cleanup_duplicate_files.sh", "env.example"],
+  "allowed_root_dirs": [".github", "SECURITY", "studies", "governance", "infrastructure", "src", "tools", "scripts", "tests", "docs", "htmlcov", "logs", "release", "requirements"],
+  "forbidden_globs": ["**/.DS_Store", "**/Thumbs.db", "**/__MACOSX/**", "**/.pytest_cache/**", "**/node_modules/**", "**/*.log"],
+  "forbidden_extensions_outside_dist": [".zip", ".rar", ".7z", ".tar", ".tgz", ".gz", ".exe", ".msi", ".dmg", ".pkg", ".deb", ".rpm"],
+  "dist_like_dirs": ["dist", "release", "artifacts", "htmlcov"],
+  "max_file_bytes": 5242880,
+  "fail_on_orphans": false,
+  "fail_on_missing": false
+}

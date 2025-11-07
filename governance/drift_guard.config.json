@@ -1,0 +1,12 @@
+{
+  "hard_fail": {
+    "doc_missing": 0,
+    "doc_orphan": 0,
+    "endpoints_min": 12,
+    "tests_min": 13,
+    "unknown_langs": false
+  },
+  "soft_fail": {
+    "repo_size_grow_mb": 10
+  }
+}

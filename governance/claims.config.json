@@ -1,0 +1,78 @@
+{
+  "claims": [
+    {
+      "id": "FRONTEND_NEXTJS",
+      "desc": "Next.js app present under src/frontend",
+      "severity": "HIGH",
+      "expect": true,
+      "evaluator": "frontend_nextjs"
+    },
+    {
+      "id": "BACKEND_FASTAPI",
+      "desc": "وجود Backend FastAPI مع >= 5 endpoints",
+      "severity": "HIGH",
+      "expect_min": 5,
+      "evaluator": "backend_endpoints_min"
+    },
+    {
+      "id": "DB_LAYER",
+      "desc": "وجود طبقة قاعدة بيانات (alembic/migrations/helm/terraform/postgres-compose)",
+      "severity": "HIGH",
+      "expect": true,
+      "evaluator": "db_layer"
+    },
+    {
+      "id": "TEST_COUNT_MIN",
+      "desc": "عدد الاختبارات >= 5",
+      "severity": "MED",
+      "expect_min": 5,
+      "evaluator": "tests_min"
+    },
+    {
+      "id": "CI_GATES",
+      "desc": "بوابات CI مفعّلة: gitleaks + CodeQL (js/ts + python)",
+      "severity": "HIGH",
+      "expect_set": ["gitleaks", "CodeQL / Analyze (javascript-typescript)", "CodeQL / Analyze (python)"],
+      "evaluator": "ci_gates_superset"
+    },
+    {
+      "id": "CLEAN_ROOT",
+      "desc": "لا ملفات/مجلدات غير مسموحة بالجذر + لا أرشيفات خارج dist + لا مخلفات",
+      "severity": "HIGH",
+      "expect_from_report": { "report": "CLEAN_RELEASE_REPORT.json", "path_equals_zero": [
+        "root.illegal_files", "root.illegal_dirs", "forbidden_matches", "oversized", "archives_outside_dist"
+      ]},
+      "evaluator": "clean_release_report_zero"
+    },
+    {
+      "id": "DOCMAP_SYNC",
+      "desc": "توافق فهرس الدراسات مع الملفات (missing=0, orphan=0)",
+      "severity": "HIGH",
+      "expect_from_report": { "report": "DOCMAP_SYNC.json", "path_equals_zero": ["missing", "orphan"] },
+      "evaluator": "docmap_report_zero"
+    },
+    {
+      "id": "REALITY_BACKEND_DB",
+      "desc": "Reality Test يثبت وجود backend و DB",
+      "severity": "HIGH",
+      "expect_from_report": { "report": "REALITY_TEST.json", "bool_true": ["snapshot.backend", "snapshot.db"] },
+      "evaluator": "reality_flags_true"
+    },
+    {
+      "id": "SEC_PLAYBOOK",
+      "desc": "وجود SECURITY/SECRETS_PLAYBOOK.md",
+      "severity": "MED",
+      "expect": "SECURITY/SECRETS_PLAYBOOK.md",
+      "evaluator": "file_exists"
+    },
+    {
+      "id": "SIZE_BUDGET_MB",
+      "desc": "حجم الريبو (MB) <= 500 خارج dist",
+      "severity": "LOW",
+      "expect_max_mb": 500,
+      "evaluator": "repo_size_budget"
+    }
+  ],
+  "hard_fail_ids": ["FRONTEND_NEXTJS", "BACKEND_FASTAPI", "DB_LAYER", "CI_GATES", "CLEAN_ROOT", "REALITY_BACKEND_DB"],
+  "soft_fail_ids": ["TEST_COUNT_MIN", "SEC_PLAYBOOK", "SIZE_BUDGET_MB", "DOCMAP_SYNC"]
+}

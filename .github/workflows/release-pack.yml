@@ -1,0 +1,66 @@
+name: Release Pack Orchestrator
+
+on:
+  workflow_dispatch:
+    inputs:
+      channel:
+        type: choice
+        required: true
+        options: [rc, ga]
+      version:
+        type: string
+        required: true
+        description: "e.g. 0.1.0-rc.1 or 0.1.0"
+  push:
+    tags:
+      - "v*"
+      - "rc*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+
+      # حواجز الحوكمة (لازم تنجح قبل التجميع)
+      - name: Governance - DocMap Sync
+        run: python tools/governance/docmap_sync.py
+      - name: Governance - Preflight Clean Release
+        run: python tools/governance/preflight_clean_release.py
+      - name: Governance - Reality Test
+        run: python tools/governance/reality_test.py
+      - name: Governance - Claims Evidence
+        run: python tools/governance/claims_evidence.py
+      - name: Governance - Drift Guard
+        run: python tools/governance/drift_guard.py
+
+      - name: Build Release Pack
+        run: |
+          CH="${{ github.event.inputs.channel || (startsWith(github.ref, 'refs/tags/rc') && 'rc') || 'ga' }}"
+          VER="${{ github.event.inputs.version || github.ref_name }}"
+          python tools/release/release_pack.py --channel "$CH" --version "$VER"
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-pack
+          path: dist/**
+
+      - name: Create GitHub Release (optional)
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/**/**/*.zip
+            dist/**/**/*.tar.gz
+            dist/**/**/CHECKSUMS.sha256
+            dist/**/**/MANIFEST.json
+            dist/**/**/SBOM_LITE.json
+            dist/**/**/RELEASE_NOTES.md

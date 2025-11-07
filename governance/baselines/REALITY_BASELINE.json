@@ -1,0 +1,21 @@
+{
+  "snapshot": {
+    "langs_files": {
+      "py": 48,
+      "ts": 3224,
+      "js": 10639,
+      "dart": 0
+    },
+    "frontend": true,
+    "backend": true,
+    "db": true,
+    "tests_count": 166,
+    "endpoints_count": 12,
+    "ci_gates_found": [
+      "CodeQL / Analyze (javascript-typescript)",
+      "CodeQL / Analyze (python)",
+      "gitleaks"
+    ]
+  },
+  "issues": []
+}
