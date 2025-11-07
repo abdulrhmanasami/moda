@@ -2,8 +2,8 @@
   "claims": [
     {
       "id": "FRONTEND_NEXTJS",
-      "desc": "وجود واجهة Next.js (TS + Tailwind) تحت src/frontend",
-      "severity": "MED",
+      "desc": "Next.js app present under src/frontend",
+      "severity": "HIGH",
       "expect": true,
       "evaluator": "frontend_nextjs"
     },
@@ -73,6 +73,6 @@
       "evaluator": "repo_size_budget"
     }
   ],
-  "hard_fail_ids": ["BACKEND_FASTAPI", "DB_LAYER", "CI_GATES", "CLEAN_ROOT", "REALITY_BACKEND_DB"],
-  "soft_fail_ids": ["FRONTEND_NEXTJS", "TEST_COUNT_MIN", "SEC_PLAYBOOK", "SIZE_BUDGET_MB", "DOCMAP_SYNC"]
+  "hard_fail_ids": ["FRONTEND_NEXTJS", "BACKEND_FASTAPI", "DB_LAYER", "CI_GATES", "CLEAN_ROOT", "REALITY_BACKEND_DB"],
+  "soft_fail_ids": ["TEST_COUNT_MIN", "SEC_PLAYBOOK", "SIZE_BUDGET_MB", "DOCMAP_SYNC"]
 }

@@ -3,12 +3,13 @@
   "version": "0.1.0-rc.1",
   "out_dir": "dist",
   "include": [
-    "governance/**",
+    "src/frontend/**",
+    "src/backend/**",
     "studies/**",
     "tools/governance/**",
+    "governance/**",
     "reports/**",
     "SECURITY/**",
-    "src/backend/**",
     "infrastructure/**",
     "README.md",
     "LICENSE"

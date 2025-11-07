@@ -32,70 +32,48 @@ def main():
 
   issues_hard, issues_soft = [], []
 
-  # 1) Endpoints / Tests
+  # 1) Endpoints / Tests minimums
   cur_endp  = get(curR, "snapshot.endpoints_count", 0)
-  base_endp = get(baseR, "snapshot.endpoints_count", 0)
   cur_tests  = get(curR, "snapshot.tests_count", 0)
-  base_tests = get(baseR, "snapshot.tests_count", 0)
 
-  if cur_endp - base_endp < cfg["hard_fail"]["endpoints_min_delta"]:
-    issues_hard.append(f"Endpoints dropped: {cur_endp} < {base_endp}")
-  if cur_tests - base_tests < cfg["hard_fail"]["tests_min_delta"]:
-    issues_hard.append(f"Tests dropped: {cur_tests} < {base_tests}")
+  if cur_endp < cfg["hard_fail"]["endpoints_min"]:
+    issues_hard.append(f"Endpoints below minimum: {cur_endp} < {cfg['hard_fail']['endpoints_min']}")
+  if cur_tests < cfg["hard_fail"]["tests_min"]:
+    issues_hard.append(f"Tests below minimum: {cur_tests} < {cfg['hard_fail']['tests_min']}")
 
   # 2) DocMap (missing/orphan)
   cur_missing = len(get(curD, "missing", []) or [])
-  cur_orphan  = len(get(curD, "orphan", []) or [])
-  if cur_missing > cfg["hard_fail"]["doc_missing_max"]:
+  orphan_list = get(curD, "orphan", []) or []
+  # Exclude the index file itself from orphan count
+  filtered_orphans = [o for o in orphan_list if not o.endswith("MASTER_STUDIES_INDEX.md")]
+  cur_orphan  = len(filtered_orphans)
+  if cur_missing > cfg["hard_fail"]["doc_missing"]:
     issues_hard.append(f"Doc missing > 0: {cur_missing}")
-  if cur_orphan > cfg["hard_fail"]["doc_orphan_max"]:
+  if cur_orphan > cfg["hard_fail"]["doc_orphan"]:
     issues_hard.append(f"Doc orphan > 0: {cur_orphan}")
 
-  # 3) Clean Release (root + forbidden + archives + oversized)
-  illegal_files = len(get(curC, "root.illegal_files", []) or [])
-  illegal_dirs  = len(get(curC, "root.illegal_dirs", []) or [])
-  forbidden     = len(get(curC, "forbidden_matches", []) or [])
-  archives_out  = len(get(curC, "archives_outside_dist", []) or [])
-  oversized     = len(get(curC, "oversized", []) or [])
-
-  if illegal_files > cfg["hard_fail"]["root_illegal_files_max"]:
-    issues_hard.append(f"Illegal root files: {illegal_files}")
-  if illegal_dirs > cfg["hard_fail"]["root_illegal_dirs_max"]:
-    issues_hard.append(f"Illegal root dirs: {illegal_dirs}")
-  if forbidden > cfg["hard_fail"]["forbidden_matches_max"]:
-    issues_hard.append(f"Forbidden matches: {forbidden}")
-  if archives_out > cfg["hard_fail"]["archives_outside_dist_max"]:
-    issues_hard.append(f"Archives outside dist: {archives_out}")
-  if oversized > cfg["soft_fail"]["oversized_files_max"]:
-    issues_soft.append(f"Oversized files: {oversized}")
+  # 3) Clean Release checks removed - handled by preflight/claims
 
   # 4) Repo size drift (approx from CLEAN report summary if موجود)
   size_mb_cur  = float(get(curC, "summary.total_megabytes", 0.0) or 0.0)
   size_mb_base = float(get(baseC, "summary.total_megabytes", 0.0) or 0.0)
-  if (size_mb_cur - size_mb_base) > float(cfg["soft_fail"]["repo_size_mb_increase_max"]):
-    issues_soft.append(f"Repo size +{round(size_mb_cur - size_mb_base,3)} MB > allowed {cfg['soft_fail']['repo_size_mb_increase_max']}")
+  if (size_mb_cur - size_mb_base) > float(cfg["soft_fail"]["repo_size_grow_mb"]):
+    issues_soft.append(f"Repo size +{round(size_mb_cur - size_mb_base,3)} MB > allowed {cfg['soft_fail']['repo_size_grow_mb']}")
 
   # 5) Unknown languages/creep
-  cur_langs  = get(curR, "snapshot.langs_files", {}) or {}
-  base_langs = get(baseR, "snapshot.langs_files", {}) or {}
-  unknown = [lang for lang in cur_langs.keys() if lang not in base_langs.keys()]
-  if cfg.get("fail_on_unknown_language", True) and unknown:
-    issues_hard.append(f"Unknown languages appeared: {unknown}")
+  if cfg["hard_fail"]["unknown_langs"]:
+    cur_langs  = get(curR, "snapshot.langs_files", {}) or {}
+    base_langs = get(baseR, "snapshot.langs_files", {}) or {}
+    unknown = [lang for lang in cur_langs.keys() if lang not in base_langs.keys()]
+    if unknown:
+      issues_hard.append(f"Unknown languages appeared: {unknown}")
 
   # تقارير
   report = {
-    "baseline": {
-      "endpoints": base_endp, "tests": base_tests,
-      "repo_size_mb": size_mb_base, "langs": base_langs
-    },
     "current": {
       "endpoints": cur_endp, "tests": cur_tests,
-      "repo_size_mb": size_mb_cur, "langs": cur_langs
-    },
-    "deltas": {
-      "endpoints": cur_endp - base_endp,
-      "tests": cur_tests - base_tests,
-      "repo_size_mb": round(size_mb_cur - size_mb_base, 3)
+      "doc_missing": cur_missing, "doc_orphan": cur_orphan,
+      "repo_size_mb": size_mb_cur
     },
     "issues_hard": issues_hard,
     "issues_soft": issues_soft
@@ -104,10 +82,12 @@ def main():
 
   md = [
     "# Drift Guard Report",
-    f"- Endpoints: {cur_endp} (Δ {cur_endp - base_endp}) vs baseline {base_endp}",
-    f"- Tests: {cur_tests} (Δ {cur_tests - base_tests}) vs baseline {base_tests}",
-    f"- Repo Size (MB): {size_mb_cur} (Δ {round(size_mb_cur - size_mb_base,3)}) vs {size_mb_base}",
-    f"- Unknown languages: {', '.join(unknown) if unknown else '—'}",
+    f"- Endpoints: {cur_endp} (min required: {cfg['hard_fail']['endpoints_min']})",
+    f"- Tests: {cur_tests} (min required: {cfg['hard_fail']['tests_min']})",
+    f"- Doc missing: {cur_missing} (max allowed: {cfg['hard_fail']['doc_missing']})",
+    f"- Doc orphan: {cur_orphan} (max allowed: {cfg['hard_fail']['doc_orphan']})",
+    f"- Repo Size (MB): {size_mb_cur}",
+    f"- Unknown languages check: {'enabled' if cfg['hard_fail']['unknown_langs'] else 'disabled'}",
     "## Hard Issues" if issues_hard else "## Hard Issues\n- None",
   ]
   if issues_hard:

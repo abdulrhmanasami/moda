@@ -22,9 +22,8 @@ def extract_paths(md:str):
 
   links = re.findall(r"\[[^\]]*\]\(([^)]+)\)", md)
 
-  # يلتقط كمان كود بلوكس فيها مسارات studies/*
-
-  code_links = re.findall(r"(studies\/[^\s)]+)", md)
+  # يلتقط كمان مسارات في كود بلوكس أو inline code
+  code_links = re.findall(r"`(studies\/[^`\s]+)`", md)  # Only in backticks
 
   # يلتقط مسارات محددة للمجلدات الفرعية مع أسماء الملفات
   # مثل: core_strategy/00_الملخص_التنفيذي_الشامل_المحسن.md

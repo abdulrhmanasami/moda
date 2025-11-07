@@ -236,7 +236,7 @@ python scripts/governance_monitor.py  # فحص الحوكمة
 - **[`Cursor_Governance_Executive_Ticket.pdf`](Cursor_Governance_Executive_Ticket.pdf)** - ملف PDF إداري
 
 #### 📊 **الدراسات الشاملة (في مجلد /studies/)**
-- **[`studies/Comprehensive Analysis of the "Invisible Mannequin" Project.md`](studies/Comprehensive Analysis of the "Invisible Mannequin" Project.md)** - التحليل الشامل
+- **[`studies/master_studies/Comprehensive Analysis of the "Invisible Mannequin" Project.md`](studies/master_studies/Comprehensive Analysis of the "Invisible Mannequin" Project.md)** - التحليل الشامل
 - **[`studies/الخطة الاستراتيجية والتنفيذية المحسنة لمشروع الموديل الخفي.md`](studies/الخطة الاستراتيجية والتنفيذية المحسنة لمشروع الموديل الخفي.md)** - الخطة الاستراتيجية
 - **[`studies/خطةالتطويرالمنهجيةلمشروعالموديلالخفي.md`](studies/خطةالتطويرالمنهجيةلمشروعالموديلالخفي.md)** - خطة التطوير المنهجية
 
