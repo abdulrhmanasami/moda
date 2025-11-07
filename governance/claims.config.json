@@ -1,0 +1,17 @@
+{
+
+  "claims": [
+
+    {"id":"FRONTEND_NEXTJS","desc":"Next.js under src/frontend","severity":"HIGH","mode":"hard_fail"},
+
+    {"id":"BACKEND_FASTAPI","desc":"FastAPI endpoints >= 5","severity":"HIGH","mode":"hard_fail"},
+
+    {"id":"DB_LAYER","desc":"Database layer present","severity":"HIGH","mode":"hard_fail"},
+
+    {"id":"TEST_COUNT_MIN","desc":"Tests >= 10","severity":"HIGH","mode":"hard_fail"},
+
+    {"id":"CLEAN_ROOT","desc":"No forbidden files at repo root","severity":"HIGH","mode":"hard_fail"}
+
+  ]
+
+}

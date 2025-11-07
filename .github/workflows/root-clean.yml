@@ -1,0 +1,33 @@
+name: Root Cleanliness Guard
+
+on: [pull_request, push]
+
+jobs:
+
+  guard:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - uses: actions/checkout@v4
+
+      - name: Enforce clean root
+
+        run: |
+
+          forbidden=("coverage.xml" "gitleaks-local.sarif" "coverage_report.txt")
+
+          rc=0
+
+          for f in "${forbidden[@]}"; do
+
+            if [ -e "$f" ]; then echo "::error file=$f::forbidden at repo root"; rc=1; fi
+
+          done
+
+          [ -d "htmlcov" ] && echo "::error::htmlcov/ must not exist" && rc=1
+
+          [ -d "logs" ] && echo "::error::logs/ must not exist" && rc=1
+
+          exit $rc
