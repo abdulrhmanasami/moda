@@ -1,0 +1,68 @@
+name: Release Freeze & Provenance
+
+on:
+  workflow_dispatch:
+    inputs:
+      channel: { type: choice, options: [rc, ga], required: true }
+      version: { type: string, required: true }
+
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  freeze:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+
+      - name: Governance Gates
+        run: |
+          python tools/governance/docmap_sync.py
+          python tools/governance/preflight_clean_release.py
+          python tools/governance/reality_test.py
+          python tools/governance/claims_evidence.py
+          python tools/governance/drift_guard.py
+
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+
+      - name: Build Release Pack (frozen)
+        env:
+          CH: ${{ inputs.channel }}
+          VER: ${{ inputs.version }}
+        run: |
+          python tools/release/release_pack.py --channel "$CH" --version "$VER"
+
+      - name: Generate Provenance & Sign
+        env:
+          REL_CHANNEL: ${{ inputs.channel }}
+          REL_VERSION: ${{ inputs.version }}
+          RELEASE_SIGNING_KEY_PEM: ${{ secrets.RELEASE_SIGNING_KEY_PEM }}
+          RELEASE_SIGNING_KEY_ID:  ${{ secrets.RELEASE_SIGNING_KEY_ID }}
+        run: |
+          python tools/release/provenance_sign.py
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-${{ inputs.version }}
+          path: |
+            dist/${{ inputs.channel }}/${{ inputs.version }}/*
+
+      - name: Create GitHub Release (Draft)
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: true
+          name: "${{ inputs.channel }} ${{ inputs.version }}"
+          files: |
+            dist/${{ inputs.channel }}/${{ inputs.version }}/*.zip
+            dist/${{ inputs.channel }}/${{ inputs.version }}/*.tar.gz
+            dist/${{ inputs.channel }}/${{ inputs.version }}/CHECKSUMS.sha256
+            dist/${{ inputs.channel }}/${{ inputs.version }}/CHECKSUMS.sha256.sig
+            dist/${{ inputs.channel }}/${{ inputs.version }}/MANIFEST.json
+            dist/${{ inputs.channel }}/${{ inputs.version }}/SBOM_LITE.json
+            dist/${{ inputs.channel }}/${{ inputs.version }}/PROVENANCE.json
+            dist/${{ inputs.channel }}/${{ inputs.version }}/RELEASE_NOTES.md
+            dist/${{ inputs.channel }}/${{ inputs.version }}/README_RELEASE.md

@@ -1,0 +1,34 @@
+{
+
+  "allowed_root": [
+    "README.md",
+    "LICENSE",
+    ".github/",
+    "governance/",
+    "studies/",
+    "tools/",
+    "src/",
+    "reports/",
+    "SECURITY/",
+    "infrastructure/",
+    "dist/",
+    "release/",
+    "temp/",
+    "tests/",
+    "requirements/",
+    "docs/",
+    "scripts/",
+    "pyproject.toml",
+    "package.json",
+    "Dockerfile",
+    "docker-compose.yml",
+    "env.example",
+    ".gitignore",
+    ".pre-commit-config.yaml",
+    "CHANGELOG.md",
+    "CONTRIBUTING.md"
+  ],
+
+  "forbidden_root": ["coverage.xml","gitleaks-local.sarif","coverage_report.txt","*.zip","*.tar","*.tar.gz"]
+
+}
