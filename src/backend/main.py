@@ -7,11 +7,7 @@ Main application entry point with OpenTelemetry monitoring
 
 import os
 import time
-<<<<<<< HEAD
 from typing import Callable, Optional
-=======
-from typing import Callable
->>>>>>> origin/main
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from prometheus_client import (
@@ -22,10 +18,7 @@ from prometheus_client import (
     CONTENT_TYPE_LATEST,
     generate_latest,
 )
-<<<<<<< HEAD
 from prometheus_fastapi_instrumentator import Instrumentator
-=======
->>>>>>> origin/main
 from starlette.responses import Response as StarletteResponse
 
 # -------- Observability (Prometheus) --------

@@ -1,0 +1,14 @@
+{
+  "period": "30d",
+  "budgets": {
+    "gpu_usd_max": 0.0,
+    "api_usd_max": 0.0,
+    "storage_usd_max": 0.0
+  },
+  "error_budget": {
+    "window_days": 30,
+    "allowed_error_pct": 1.0
+  },
+  "hard_fail": ["gpu", "api", "storage", "error_budget"],
+  "soft_fail": ["missing_snapshot"]
+}

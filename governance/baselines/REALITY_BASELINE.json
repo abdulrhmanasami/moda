@@ -1,0 +1,13 @@
+{
+  "snapshot": {
+    "langs_files": {
+      "py": 47,
+      "ts": 3
+    },
+    "endpoints_count": 12,
+    "tests_count": 45,
+    "frontend": true,
+    "backend": true,
+    "db": true
+  }
+}
